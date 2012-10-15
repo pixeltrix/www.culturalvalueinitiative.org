@@ -99,13 +99,6 @@
 				<?php
 				wp_nav_menu( array( 'depth' => 6, 'sort_column' => 'menu_order', 'container' => 'ul', 'menu_id' => 'main-nav', 'menu_class' => 'nav fl', 'theme_location' => 'primary-menu' ) );
 				?>
-				<ul class="rss fr">
-        			<?php $email = $woo_options['woo_subscribe_email']; if ( $email ) { ?>
-        			<li class="sub-email"><a href="<?php echo $email; ?>" target="_blank"><?php _e('Subscribe by Email', 'woothemes') ?></a></li>
-        			<?php } ?>
-        			<li class="sub-rss"><a href="<?php if ( $GLOBALS['feedurl'] ) { echo $GLOBALS['feedurl']; } else { echo get_bloginfo_rss( 'rss2_url' ); } ?>"><?php _e( 'Subscribe to RSS', 'woothemes' ); ?></a></li>
-        		</ul>
-
 			</div><!-- /#navigation -->
 		<?php
 		} 
