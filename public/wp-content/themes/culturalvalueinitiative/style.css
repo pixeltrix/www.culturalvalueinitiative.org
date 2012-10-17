@@ -1,0 +1,46 @@
+/*
+Theme Name:     Cultural Value Initiative
+Theme URI:      http://culturalvalueinitiative.org/
+Description:    Custom theme for the Cultural Value Initiative website
+Author:         Pixeltrix Ltd
+Author URI:     http://www.pixeltrix.co.uk/
+Template:       themorningafter
+Version:        1.0.0
+*/
+
+@import url("../themorningafter/style.css");
+
+#header {
+  position: relative;
+  height: 206px;
+}
+#logo {
+  position: absolute;
+  left: 25px;
+  top: 0px;
+  margin: 0;
+}
+#logo a {
+  display: block;
+}
+#logo a img {
+  border: none;
+  display: block;
+  margin: 0;
+}
+#navigation {
+  top: 126px;
+  position: absolute;
+  width: 960px;
+  height: 27px;
+  background: #FFFFFF;
+}
+#navigation .nav a {
+  height: 18px;
+}
+#topbanner {
+  position: absolute;
+  top: 154px;
+  border-top: none;
+  border-bottom: navajowhite;
+}
