@@ -24,7 +24,6 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - __construct()
  * - is_active_component()
  * - is_downloaded_component()
- * - is_purchased_component()
  * - has_upgrade()
  * - get_status_token()
  * - get_status_label()
@@ -39,7 +38,6 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - activate_component()
  * - deactivate_component()
  * - download_component()
- * - purchase_component()
  * - upgrade_component()
  * - get_screenshot_url()
  * - set_username()
@@ -117,34 +115,9 @@ class WooDojo_Model {
 	} // End is_downloaded_component()
 
 	/**
-	 * is_purchased_component function.
-	 *
-	 * @description Check if a specified component has been purchased.
-	 * @access public
-	 * @param string $component
-	 * @param string $type
-	 * @return boolean $is_purchased
-	 */
-	public function is_purchased_component ( $component, $type ) {
-		global $woodojo;
-
-		$purchases = $woodojo->api->get_stored_purchases();
-
-		$is_purchased = false;
-
-		if ( $type == 'bundled' ) { return true; } // Don't check if we're working with a bundled product.
-
-		if ( ( $this->components[$type][$component]->is_free == false ) && ( in_array( $this->components[$type][$component]->product_id, (array)$purchases ) ) ) {
-			$is_purchased = true;
-		}
-		
-		return $is_purchased;
-	} // End is_purchased_component()
-
-	/**
 	 * has_upgrade function.
 	 *
-	 * @description Check if an upgrade is available for a component, if it's purchased.
+	 * @description Check if an upgrade is available for a component.
 	 * @access public
 	 * @param string $component
 	 * @param string $type
@@ -153,7 +126,7 @@ class WooDojo_Model {
 	public function has_upgrade ( $component, $type ) {
 		$has_upgrade = false;
 
-		if ( ( $this->components[$type][$component]->is_free == true ) || $this->is_purchased_component( $component, $type ) ) {
+		if ( ( $this->components[$type][$component]->is_free == true ) ) {
 			$latest = $this->components[$type][$component]->version;
 			$active = $this->get_component( $this->config->downloads_path . $this->components[$type][$component]->filepath )->version;
 		}
@@ -309,7 +282,6 @@ class WooDojo_Model {
 		
 		$response = $woodojo->api->get_products_by_type( 'standalone' );
 
-
 		// Check the current version.
 		foreach ( $response as $k => $v ) {
 			if ( file_exists( trailingslashit( WP_PLUGIN_DIR ) . $v->filepath ) ) {
@@ -365,12 +337,6 @@ class WooDojo_Model {
 	 * @return array $components
 	 */
 	public function load_bundled_components () {
-		/*
-		static $components = array();
-
-		if ( isset( $components ) )
-			return $components;
-		*/
 		$files = WooDojo_Utils::glob_php( '*.php', GLOB_MARK, $this->config->components_path );
 
 		foreach ( $files as $file ) {
@@ -485,9 +451,6 @@ class WooDojo_Model {
 
 		$redirect_to = admin_url( 'admin.php?page=' . $this->config->token . '&component=' . $component . '&component-type=' . $type . '&process-action=' . 'download' . '&download-component=' . $component );
 
-		// Authenticate the user.
-		$woodojo->api->auth( $redirect_to );
-
 		// check_admin_referer( $component );
 
 		// okay, let's see about getting credentials
@@ -581,42 +544,6 @@ class WooDojo_Model {
 	} // End download_component()
 
 	/**
-	 * purchase_component function.
-	 * 
-	 * @access public
-	 * @since 1.0.0
-	 * @param string $component
-	 * @param string $type
-	 * @param boolean $redirect
-	 * @return boolean $downloaded
-	 */
-	public function purchase_component ( $component, $type = 'downloadable', $redirect = true ) {
-		global $woodojo;
-
-		$purchased = false;
-
-		$redirect_to = admin_url( 'admin.php?page=' . $this->config->token . '&component=' . $component . '&component-type=' . $type . '&process-action=' . 'purchase' . '&purchase-component=' . $this->components[$type][$component]->product_id . '&component_id=' . $this->components[$type][$component]->product_id );
-
-		// Authenticate the user.
-		$woodojo->api->auth( $redirect_to );
-
-		wp_redirect( admin_url( 'admin.php?page=' . $this->config->token . '&screen=purchase&component=' . $component . '&component-type=' . $type . '&process-action=' . 'purchase' . '&purchase-component=' . $this->components[$type][$component]->product_id . '&component_id=' . $this->components[$type][$component]->product_id ) );
-		exit;
-
-		if ( $redirect == true ) {
-			if ( $downloaded == true ) {
-				wp_redirect( admin_url( 'admin.php?page=' . $this->config->token . '&purchased-component=' . $component . '&type=' . $type ) );
-				exit;
-			} else {
-				wp_redirect( admin_url( 'admin.php?page=' . $this->config->token . '&purchase-error=' . $component . '&type=' . $type ) );
-				exit;
-			}
-		} else {
-			return $purchased;
-		}
-	} // End purchase_component()
-
-	/**
 	 * upgrade_component function.
 	 * 
 	 * @access public
@@ -624,16 +551,12 @@ class WooDojo_Model {
 	 * @param string $component
 	 * @param string $type
 	 * @param boolean $redirect
-	 * @uses global $woodojo->api->auth()
 	 * @return void
 	 */
 	public function upgrade_component ( $component, $type = 'downloadable', $redirect = true ) {
 		global $woodojo;
 
 		$redirect_to = admin_url( 'admin.php?page=' . $this->config->token . '&component=' . $component . '&component-type=' . $type . '&process-action=' . 'upgrade' . '&upgrade-component=' . $component . '&activate=false' );
-
-		// Authenticate the user.
-		$woodojo->api->auth( $redirect_to );
 
 		// Backup the current version.
 		$dir = $this->config->downloads_path;
@@ -744,50 +667,6 @@ class WooDojo_Model {
 
 		return $html;
 	} // End get_screenshot_url()
-	
-	/**
-	 * get_username function.
-	 * 
-	 * @access public
-	 * @since 1.0.0
-	 * @return string
-	 */
-	public function get_username () {
-		if ( false === ( $username = get_option( $this->config->token . '-username' ) ) ) {} else {
-			$this->username = $username;
-		}
-		return $this->username;
-	} // End get_username()
-	
-	/**
-	 * set_username function.
-	 * 
-	 * @access public
-	 * @since 1.0.0
-	 * @param string $username
-	 * @return boolean
-	 */
-	public function set_username ( $username ) {
-		if ( $username != '' ) { return update_option( $this->config->token . '-username', $username ); } else { return false; }
-	} // End set_username()
-
-	/**
-	 * is_logged_in function.
-	 * 
-	 * @access public
-	 * @since 1.0.0
-	 * @uses global $woodojo->api->has_token()
-	 * @return boolean
-	 */
-	public function is_logged_in () {
-		global $woodojo;
-
-		$response = false;
-
-		$response = $woodojo->api->is_valid_token();
-
-		return $response;
-	} // End is_logged_in()
 
 	/**
 	 * get_request_error function.

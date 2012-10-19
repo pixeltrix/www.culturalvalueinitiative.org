@@ -1,5 +1,8 @@
 *** WooDojo Shortlinks Changelog ***
 
+2012.09.19 - version 1.0.3
+ * /bundled/woodojo-shortlinks/classes/woodojo-shortlinks.class.php - Refine escaping of bitly URL generation URL, to ensure the URL is generated correctly.
+
 2012.06.26 - version 1.0.2
  * /classes/woodojo-shortlinks.class.php - Code standards clean-up and maintenance updates. Add scope to methods where scope was missing.
  * /classes/settings.class.php - Code standards clean-up and maintenance updates. Add scope to methods where scope was missing.

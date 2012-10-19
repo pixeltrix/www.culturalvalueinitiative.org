@@ -2,8 +2,8 @@
 Contributors: woothemes, mattyza, warrenholmes, cobusbester, jeffikus
 Tags: woodojo, widget, shortlinks, twitter, admin
 Requires at least: 3.3
-Tested up to: 3.4.1
-Stable tag: 1.2.1
+Tested up to: 3.4.2
+Stable tag: 1.2.4
 
 WooDojo is a powerful collection of WooThemes features, to enhance your website with the features you need.
 
@@ -68,6 +68,22 @@ Bugs can be reported in our [WooThemes Support Desk](http://support.woothemes.co
 1. The WooDojo features screen.
 
 == Changelog ==
+
+= 1.3.0 =
+
+* Removed purchase, registration, login and authentication logic.
+
+= 1.2.4 =
+
+* Move WooTransmitter integration into the WooDojo class and run on the "plugins_loaded" hook.
+
+= 1.2.3 =
+
+* Adjust the loading of localisation files. Adjust the "download" routine for downloadables to ensure legacy files are removed successfully.
+
+= 1.2.2 =
+
+* Add user agent to API requests. Minor updates to the main WooDojo screen.
 
 = 1.2.1 =
 

@@ -43,11 +43,11 @@ class WooDojo_ShortLinks {
 	public function __construct () {		
 		/* Class Settings */
 		$this->token = 'woodojo-shortlinks';
-		$this->service = get_option('woodojo_shortlinks_service');
-		if($this->service == '') $this->service = 'tinyurl';	
+		$this->service = get_option( 'woodojo_shortlinks_service' );
+		if( $this->service == '' ) $this->service = 'tinyurl';	
 		if ( is_admin() ) {
-	    	$this->name		= __('ShortLinks', 'woodojo');
-	    	$this->menu_label	= __('ShortLinks', 'woodojo');
+	    	$this->name		= __( 'ShortLinks', 'woodojo' );
+	    	$this->menu_label	= __( 'ShortLinks', 'woodojo' );
 	    	$this->page_slug	= 'shortlinks';
 	    }
 		/* Settings Screen */
@@ -173,7 +173,8 @@ class WooDojo_ShortLinks {
 	    }
 	    
 	    if ( ( $login != '' ) && ( $api_key != '' ) ) {
-	    	$url = esc_url( 'http://api.bitly.com/v3/shorten/?login=' . urlencode( $login ) . '&apikey=' . urlencode( $api_key ) . '&format=json&longUrl=' . urlencode( $url ) );
+	    	$url = 'http://api.bitly.com/v3/shorten/?login=' . urlencode( $login ) . '&apikey=' . urlencode( $api_key ) . '&format=json&longUrl=' . esc_url( $url );
+
 	    	$json = wp_remote_get( $url );
 	    	$data = json_decode( $json['body'] );
 	    	if( $data->status_code == 200 ) {

@@ -39,10 +39,10 @@ border-style: none solid solid; }
 #woodojo .widgets-holder-wrap .widget .module-inside p  { line-height: 18px; }
 #woodojo .widgets-holder-wrap .widget .module-inside .info img  { float: right; margin: 0 0 20px 20px; border: 1px solid #DFDFDF; background: #fff; padding: 2px; }
 #woodojo .widgets-holder-wrap .widget .module-inside .info p a  { text-decoration: none; }
-#woodojo .widgets-holder-wrap .widget.enabled .module-inside .button-primary.disable  { margin: 0; padding: 0; border: none; background: none; color: red; text-shadow: none; text-decoration: underline; font-weight: normal; }
+#woodojo .widgets-holder-wrap .widget.enabled .module-inside .button-primary.disable { -webkit-box-shadow: none; -moz-box-shadow: none; box-shadow: none; margin: 0; padding: 0; border: none; background: none; color: #FF0000; border: 0; text-shadow: none; text-decoration: underline; font-weight: normal; }
 #woodojo .widgets-holder-wrap .widget .module-inside .button-primary.purchase  { padding-left: 28px; background: url(../images/bg-btn-purchase.png) no-repeat left center; }
 #woodojo .widgets-holder-wrap .widget .module-inside .button-primary.purchase:active  { background: url(../images/bg-btn-purchase-active.png) no-repeat left center; }
-#woodojo .widgets-holder-wrap .widget .module-inside img#ajax-loading  { position: relative; top: 3px; border: none; margin: 0 0 0 5px; padding: 0; background: none; float: none; }
+#woodojo .widgets-holder-wrap .widget .module-inside img#ajax-loading  { visibility: hidden; position: relative; top: 3px; border: none; margin: 0 0 0 5px; padding: 0; background: none; float: none; }
 /* Styles that apply only when JavaScript is available */
 .js #woodojo .widgets-holder-wrap .widget.closed .module-inside { display: none; }
 

@@ -18,7 +18,7 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
 	}
 
 	$has_upgrade = false;
-	if ( $k == 'downloadable' && ( $this->model->is_purchased_component( $i, $k ) || $this->model->components[$k][$i]->is_free ) ) {
+	if ( $k == 'downloadable' && ( $this->model->components[$k][$i]->is_free ) ) {
 		if ( isset( $this->model->components[$k][$i]->has_upgrade ) && $this->model->components[$k][$i]->has_upgrade != false ) {
 			$has_upgrade = true;
 			$css_class .= ' has-upgrade';

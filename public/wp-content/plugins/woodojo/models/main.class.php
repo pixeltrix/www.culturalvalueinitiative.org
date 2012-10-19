@@ -33,8 +33,6 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - get_disable_button()
  * - get_download_button()
  * - get_upgrade_link_url()
- * - get_purchase_button()
- * - logout()
  */
 class WooDojo_Model_Main extends WooDojo_Model {
 	var $components;
@@ -74,12 +72,6 @@ class WooDojo_Model_Main extends WooDojo_Model {
 
 		$this->current_action_response = $this->component_actions();
 
-		// Logout.
-		$logout = WooDojo_Utils::get_or_post( 'logout' );
-		if ( $logout == 'true' ) {
-			$this->logout();
-		}
-
 		add_action( 'admin_notices', array( &$this, 'admin_notices' ) );
 		add_action( 'admin_head', array( $this, 'add_contextual_help' ) );	
 	} // End __construct()
@@ -107,11 +99,6 @@ class WooDojo_Model_Main extends WooDojo_Model {
 		// Component download.
 		if ( ( isset( $_GET['download-component'] ) || isset( $_POST['download-component'] ) ) && ( WooDojo_Utils::get_or_post( 'download-component' ) != '' ) ) {
 			$response = $this->download_component( trim( esc_attr( WooDojo_Utils::get_or_post( 'download-component' ) ) ), trim( esc_attr( WooDojo_Utils::get_or_post( 'component-type' ) ) ) );
-		}
-
-		// Component purchase.
-		if ( ( isset( $_GET['purchase-component'] ) || isset( $_POST['purchase-component'] ) ) && ( WooDojo_Utils::get_or_post( 'purchase-component' ) != '' ) ) {
-			$response = $this->purchase_component( trim( esc_attr( WooDojo_Utils::get_or_post( 'component' ) ) ), trim( esc_attr( WooDojo_Utils::get_or_post( 'component-type' ) ) ) );
 		}
 
 		// Component upgrade.
@@ -171,26 +158,6 @@ class WooDojo_Model_Main extends WooDojo_Model {
 			$notice .= '<p>' . sprintf( __( 'There was an error downloading %s. Please try again.', 'woodojo' ), $name ) . '</p>' . "\n";
 			$notice .= $this->get_request_error();
 			$notice .= '</div>' . "\n";
-		}
-
-		// Successful Purchase.
-		if ( isset( $_GET['purchased-component'] ) && ( $_GET['purchased-component'] != '' ) ) {
-			$name = $this->components[trim( esc_attr( $_GET['type'] ) )][$_GET['purchased-component']]->title;
-			$notice = '<div id="message" class="success updated fade"><p>' . sprintf( __( '%s purchased successfully.', 'woodojo' ), $name ) . '</p></div>' . "\n";
-		}
-		
-		// Unsuccessful Purchase.
-		if ( isset( $_GET['purchase-error'] ) && ( $_GET['purchase-error'] != '' ) ) {
-			$name = $this->components[trim( esc_attr( $_GET['type'] ) )][$_GET['purchase-error']]->title;
-			$notice = '<div id="message" class="error">' . "\n";
-			$notice .= '<p>' . sprintf( __( 'There was an error purchasing %s. Please try again.', 'woodojo' ), $name ) . '</p>' . "\n";
-			$notice .= $this->get_request_error();
-			$notice .= '</div>' . "\n";
-		}
-		
-		// Successful Registration.
-		if ( isset( $_GET['registration'] ) && ( $_GET['registration'] == 'success' ) ) {
-			$notice .= '<div id="registration-message" class="success updated fade"><p>' . __( 'Registered successfully.', 'woodojo' ) . '</p></div>' . "\n";
 		}
 
 		// Successful upgrade.
@@ -322,22 +289,6 @@ class WooDojo_Model_Main extends WooDojo_Model {
 				'<li>' . __( 'Once a WordPress plugin is downloaded and enabled, it acts the same as any other WordPress plugin and can be activated or deactivated, either from within WooDojo or from the "Plugins" screen.', 'woodojo' ) . '</li>' .
 			'</ul>'
 		) );
-	
-		get_current_screen()->add_help_tab( array(
-		'id'		=> 'login',
-		'title'		=> __( 'Login', 'woodojo' ),
-		'content'	=>
-			'<p>' . sprintf( __( 'WooDojo uses your WooThemes.com account to download additional features. WooThemes.com accounts are freely available and can be registered within WooDojo %shere%s.', 'woodojo' ), '<a href="' . esc_url( admin_url( 'admin.php?page=' . $this->config->token . '&screen=register' ) ) . '">', '</a>' ) . '</p>' . 
-			'<p>' . sprintf( __( 'You can login to your WooThemes.com account at any time. If we need to log you in, WooDojo will prompt you for your login information (this usually happens prior to a download). %sLogin to WooDojo%s here.', 'woodojo' ), '<a href="' . esc_url( admin_url( 'admin.php?page=' . $this->config->token . '&screen=login' ) ) . '">', '</a>' )  . '</p>'
-		) );
-
-		get_current_screen()->add_help_tab( array(
-		'id'		=> 'register',
-		'title'		=> __( 'Registration', 'woodojo' ),
-		'content'	=>
-			'<p>' . sprintf( __( 'WooDojo uses your WooThemes.com account to download additional features. WooThemes.com accounts are freely available and can be %sregistered within WooDojo%s.', 'woodojo' ), '<a href="' . esc_url( admin_url( 'admin.php?page=' . $this->config->token . '&screen=register' ) ) . '">', '</a>' ) . '</p>' . 
-			'<p>' . __( 'Your WooThemes.com account can also be used to access our public forums and, if you\'ve purchased with WooThemes, you can access our members only support forums as well.', 'woodojo' ) . '</p>'
-		) );
 
 		get_current_screen()->set_help_sidebar(
 		'<p><strong>' . __( 'For more information:', 'woodojo' ) . '</strong></p>' .
@@ -362,20 +313,12 @@ class WooDojo_Model_Main extends WooDojo_Model {
 		$button = '';
 		
 		if ( ( $type == 'downloadable' || $type == 'standalone' ) && ( ! $this->is_downloaded_component( $component, $type ) ) ) {
-			if ( ( $this->is_purchased_component( $component, $type ) ) || ( $this->components[$type][$component]->is_free == true ) ) {
-				$button = $this->get_download_button( $component, $type );
-			} else {
-				$button = $this->get_purchase_button( $component, $type );
-			}
+			$button = $this->get_download_button( $component, $type );
 		} else {
-			if ( $type != 'bundled' && ( $this->components[$type][$component]->is_free == false ) && ! $this->is_purchased_component( $component, $type ) ) {
-				$button = $this->get_purchase_button( $component, $type );
+			if ( $this->is_active_component( $component, $type ) ) {
+				$button = $this->get_disable_button( $component, $type );
 			} else {
-				if ( $this->is_active_component( $component, $type ) ) {
-					$button = $this->get_disable_button( $component, $type );
-				} else {
-					$button = $this->get_enable_button( $component, $type );
-				}
+				$button = $this->get_enable_button( $component, $type );
 			}
 		}
 		
@@ -456,44 +399,5 @@ class WooDojo_Model_Main extends WooDojo_Model {
 		$html = admin_url( 'admin.php?page=' . $this->config->token . '&upgrade-component=' . urlencode( $component ) . '&component=' . urlencode( $component ) . '&component-type=' . $type . '&component_id=' . $id );
 		return $html;
 	} // End get_upgrade_link_url()
-
-	/**
-	 * get_purchase_button function.
-	 * 
-	 * @access private
-	 * @since 1.0.0
-	 * @param string $component
-	 * @param string $type
-	 * @return string $html
-	 */
-	private function get_purchase_button ( $component, $type ) {
-		$id = $this->components[$type][$component]->product_id;
-
-		$html = '';
-		$html .= '<input type="submit" id="button-component-' . $component . '-purchase" class="button-primary component-control-save purchase" value="' . sprintf( esc_attr__( 'Purchase - $%s', 'woodojo' ), number_format( $this->components[$type][$component]->price, 0 ) ) . '" />' . "\n";
-		$html .= '<input type="hidden" name="purchase-component" id="component-' . $component . '-purchase" value="' . esc_attr( $component ) . '" />' . "\n";
-		$html .= '<input type="hidden" name="component" value="' . esc_attr( $component ) . '" />' . "\n";
-		$html .= '<input type="hidden" name="component_id" value="' . esc_attr( $id ) . '" />' . "\n";
-		return $html;
-	} // End get_purchase_button()
-
-	/**
-	 * logout function.
-	 * 
-	 * @access private
-	 * @since 1.0.0
-	 * @uses global $woodojo->api->clear_tokens()
-	 * @return void
-	 */
-	private function logout () {
-		global $woodojo;
-		delete_option( $this->config->token . '-username' );
-		$woodojo->api->clear_tokens();
-
-		delete_option( $this->config->token . '-purchases' );
-		
-		wp_redirect( esc_url( admin_url( 'admin.php?page=' . $this->config->token ) ) );
-		exit;
-	} // End logout()
 } // End Class
 ?>

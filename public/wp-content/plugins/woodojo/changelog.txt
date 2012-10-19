@@ -1,5 +1,24 @@
 *** WooDojo Changelog ***
 
+2012.10.18 - version 1.3.0
+ * /classes/api.class.php - Remove all token and registration functionality.
+ * /classes/model.class.php - Remove calls to api->auth(). Remove username and purchase methods.
+ * /classes/admin.class.php - Load admin.js in the header instead of the footer.
+ * /models/main.class.php - Remove all purchase, login, registration and logout output and logic.
+ * /screens/main/section.php - esc_attr() in the section ID.
+ * /screens/main/component-item.php - Remove purchase check.
+ * /screens/login.php - REMOVED
+ * /screens/register.php - REMOVED
+ * /screens/purchase.php - REMOVED
+ * /models/login.class.php - REMOVED
+ * /models/register.class.php - REMOVED
+ * /models/purchase.class.php - REMOVED
+ * /assets/js/purchase.js - REMOVED
+
+2012.09.19 - version 1.2.4
+ * /classes/woodojo.class.php - Add "add_wootransmitter_key()" method, to run on "plugins_loaded" for WooTransmitter integration, if WooTransmitter is active.
+ * woodojo.php - Remove WooTransmitter integration from this file, in favour of including and loading it in the "WooDojo" class.
+
 2012.09.05 - version 1.2.3
  * /assets/css/settings.css - Add "#woodojo" prefix to each style relating to the "infobox" fields.
  * /classes/woodojo.class.php - Add and call load_plugin_textdomain() method to ensure localization file is loaded correctly.

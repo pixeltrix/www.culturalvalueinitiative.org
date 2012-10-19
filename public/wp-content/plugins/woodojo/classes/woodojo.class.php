@@ -27,6 +27,7 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - load_plugin_textdomain()
  * - activation()
  * - register_plugin_version()
+ * - add_wootransmitter_key()
  */
 class WooDojo {
 	private $file;
@@ -60,6 +61,7 @@ class WooDojo {
 		
 		$this->load_plugin_textdomain();
 		add_action( 'init', array( &$this, 'load_localisation' ), 0 );
+		add_action( 'plugins_loaded', array( &$this, 'add_wootransmitter_key' ) );
 
 		if ( is_admin() ) {
 			require_once( 'admin.class.php' );
@@ -100,7 +102,7 @@ class WooDojo {
 	} // End load_plugin_textdomain()
 
 	/**
-	 * activation function.
+	 * Run on activation of the plugin.
 	 * 
 	 * @access public
 	 * @since 1.0.0
@@ -111,7 +113,7 @@ class WooDojo {
 	} // End activation()
 
 	/**
-	 * register_plugin_version function.
+	 * Log the current version of the plugin within the database.
 	 * 
 	 * @access public
 	 * @since 1.0.0
@@ -122,5 +124,19 @@ class WooDojo {
 			update_option( $this->base->token . '-version', $this->version );
 		}
 	} // End register_plugin_version()
+
+	/**
+	 * Integrate with WooTransmitter, if the plugin is active.
+	 *
+	 * @access  public
+	 * @since   1.2.4
+	 * @return  void
+	 */
+	public function add_wootransmitter_key () {
+		if ( true == apply_filters( 'wootransmitter_enable', true ) && class_exists( 'WooThemes_Transmitter' ) ) {
+	        global $wootransmitter;
+	        $wootransmitter->add_app_key( 'aa627bbb-a54b-4b0d-b154-c1c6ce3679b0', esc_attr( $this->version ) );
+	    }
+	} // End add_wootransmitter_key()
 } // End Class
 ?>

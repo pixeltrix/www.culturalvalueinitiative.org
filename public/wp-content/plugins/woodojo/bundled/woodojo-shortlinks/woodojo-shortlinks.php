@@ -2,7 +2,7 @@
 /**
  * Module Name: WooDojo - ShortLinks
  * Module Description: Another classic WooDojo feature, WooDojo - ShortLinks automatically generates short URLs for your posts, using your URL shortening service of choice.
- * Module Version: 1.0.2
+ * Module Version: 1.0.3
  * Module Settings: woodojo-shortlinks-settings
  *
  * @package WooDojo

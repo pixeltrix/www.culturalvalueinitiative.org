@@ -51,7 +51,7 @@ class WooDojo_Admin extends WooDojo_Base {
 		add_action( 'wp_ajax_woodojo_get_closed_components', array( &$this, 'ajax_get_closed_components' ) );
 
 		// Only these models and screens can be loaded.
-		$this->whitelist = array( 'login', 'main', 'more-information', 'purchase', 'register' );
+		$this->whitelist = array( 'main', 'more-information' );
 	} // End __construct()
 	
 	/**
@@ -66,7 +66,6 @@ class WooDojo_Admin extends WooDojo_Base {
 		$hook = add_menu_page( $this->name, $this->name, 'manage_options', $this->token, array( $this, 'admin_screen' ), $this->assets_url . 'images/menu-icon.png' );
 		
 		add_action( 'load-' . $hook, array( $this, 'admin_page_load' ) );
-		add_action( 'admin_head-' . $hook, array( $this, 'admin_head' ) );
 		add_filter( 'custom_menu_order', '__return_true' );
 		add_filter( 'menu_order', array( $this, 'admin_menu_order' ) );
 
@@ -126,19 +125,7 @@ class WooDojo_Admin extends WooDojo_Base {
 			return false;
 		}
 	} // End admin_screen()
-	
-	/**
-	 * admin_head function.
-	 *
-	 * @description Run in the admin_head of the admin screen.
-	 * @access public
-	 * @since 1.0.0
-	 * @return void
-	 */
-	function admin_head () {
-	
-	} // End admin_head()
-	
+
 	/**
 	 * admin_page_load function.
 	 *
@@ -191,7 +178,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @return void
 	 */
 	function admin_styles () {
-		wp_register_style( $this->token . '-admin', $this->assets_url . 'css/admin.css', '', '1.0.0', 'screen' );
+		wp_register_style( $this->token . '-admin', $this->assets_url . 'css/admin.css', '', '1.2.4', 'screen' );
 		
 		wp_enqueue_style( $this->token . '-admin' );
 	} // End admin_styles()
@@ -204,7 +191,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @return void
 	 */
 	function admin_styles_global () {
-		wp_register_style( $this->token . '-global', $this->assets_url . 'css/global.css', '', '1.0.0', 'screen' );
+		wp_register_style( $this->token . '-global', $this->assets_url . 'css/global.css', '', '1.2.4', 'screen' );
 		
 		wp_enqueue_style( $this->token . '-global' );
 	} // End admin_styles_global()
@@ -217,7 +204,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @return void
 	 */
 	function admin_scripts () {
-		wp_register_script( $this->token . '-admin', $this->assets_url . 'js/admin.js', array( 'jquery' ), '1.0.1', true );
+		wp_register_script( $this->token . '-admin', $this->assets_url . 'js/admin.js', array( 'jquery' ), '1.2.4', false );
 		
 		wp_enqueue_script( $this->token . '-admin' );
 		

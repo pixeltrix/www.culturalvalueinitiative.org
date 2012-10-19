@@ -1,4 +1,4 @@
-li.toplevel_page_woodojo .wp-menu-image a img  { display: none; }
+#adminmenu li.toplevel_page_woodojo .wp-menu-image a img, #adminmenu li.toplevel_page_woodojo:hover .wp-menu-image img, #adminmenu li.toplevel_page_woodojo.wp-has-current-submenu .wp-menu-image img { display: none; opacity: 0; }
 #wpwrap li.toplevel_page_woodojo div.wp-menu-image  { background: url(../images/dojo_menu_sprite.png) no-repeat 0 -32px; }
 #wpwrap li.toplevel_page_woodojo.current div.wp-menu-image, #wpwrap li.toplevel_page_woodojo:hover div.wp-menu-image, #wpwrap li.toplevel_page_woodojo.wp-has-current-submenu div.wp-menu-image  { background-position: 0 top; }
 

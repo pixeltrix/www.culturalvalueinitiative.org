@@ -11,11 +11,6 @@ if ( $this->model->current_action_response == 'cred' ) {
 <div id="woodojo" class="wrap">
 	<div id="icon-dojo" class="icon32"><br></div>
 	<h2><?php echo esc_html( $this->name ); ?> <span class="version"><?php echo esc_html( $woodojo->version ); ?></span></h2>
-	<?php if ( '' != $this->model->get_username() ) { ?>
-		<p class="logged-in-as fr"><?php printf( __( 'Logged in as: %s', 'woodojo' ), '<strong>' . $this->model->get_username() . '</strong>.' ); echo ' <a href="' . esc_url( admin_url( 'admin.php?page=' . $this->model->config->token . '&logout=true' ) ) . '">' . __( 'Logout', 'woodojo' ) . '</a>'; ?></p>
-	<?php } else { ?>
-		<p class="logged-in-as fr"><?php printf( __( 'Not currently logged in. %s | %s', 'woodojo' ), '<a href="' . esc_url( admin_url( 'admin.php?page=' . $this->model->config->token . '&screen=login' ) ) . '">' . __( 'Login', 'woodojo' ) . '</a>', '<a href="' . esc_url( admin_url( 'admin.php?page=' . $this->model->config->token . '&screen=register' ) ) . '">' . __( 'Register', 'woodojo' ) . '</a>' ); ?></p>
-	<?php } ?>
 	<p class="powered-by-woo"><?php _e( 'Powered by', 'woodojo' ); ?><a href="http://www.woothemes.com" title="WooThemes"><img src="<?php echo $this->assets_url; ?>images/woothemes.png" alt="WooThemes" /></a></p>
 	<p><?php _e( 'WooDojo is a powerful toolkit of features to enhance your website. Select only the functionality that you need, without unnecessary code. Enhance your website with WooDojo, today.', 'woodojo' ); ?></p>
 	<ul class="subsubsub">
