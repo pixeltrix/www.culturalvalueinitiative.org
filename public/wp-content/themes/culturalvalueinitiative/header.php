@@ -48,7 +48,7 @@
 
             </div>
 
-            <div id="search_menu" class="column span-6 border_left last push-0">
+            <div id="search_menu" class="column span-6 last push-0">
 
                 <div id="search" class="column first">
                     <h3 class="mast4"><?php _e( 'Search', 'woothemes' ); ?></h3>

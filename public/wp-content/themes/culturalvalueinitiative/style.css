@@ -10,6 +10,9 @@ Version:        1.0.0
 
 @import url("../themorningafter/style.css");
 
+body {
+  background: #598e02;
+}
 #header {
   position: relative;
   height: 206px;
@@ -28,12 +31,20 @@ Version:        1.0.0
   display: block;
   margin: 0;
 }
+#menu li a {
+  color: #ffffff;
+}
+#menu li span.home { background: url(images/bg/home.png) no-repeat; }
+#menu li span.about { background: url(images/bg/info.png) no-repeat; }
+#menu li span.archives { background: url(images/bg/archive.png) no-repeat; }
+#menu li span.subscribe { background: url(images/bg/rss.png) no-repeat; }
+#menu li span.contact { background: url(images/bg/mail.png) no-repeat; }
 #navigation {
   top: 126px;
   position: absolute;
   width: 960px;
   height: 27px;
-  background: #FFFFFF;
+  background: #ffffff;
 }
 #navigation .nav a {
   height: 18px;
@@ -43,4 +54,64 @@ Version:        1.0.0
   top: 154px;
   border-top: none;
   border-bottom: navajowhite;
+}
+#topbanner .pagetitle {
+  background: none;
+  color: #ffffff;
+  margin-left: 25px;
+}
+#topbanner .pagetitle_prefix {
+  display: none;
+}
+h3.mast, h3.home_featured {
+  color: #598e02;
+}
+h3.mast4 {
+  color: #ffffff;
+}
+input.submit_input {
+  background-image: url(images/bg/submit.png);
+  color: #000000;
+}
+body.page-template-green-php {
+  background: #598e02;
+}
+body.page-template-green-php h3.mast,
+body.page-template-green-php h3.home_featured {
+  color: #598e02;
+}
+body.page-template-red-php {
+  background: #8e1301;
+}
+body.page-template-red-php h3.mast,
+body.page-template-red-php h3.home_featured {
+  color: #8e1301;
+}
+body.page-template-turquoise-php {
+  background: #016e8f;
+}
+body.page-template-turquoise-php h3.mast,
+body.page-template-turquoise-php h3.home_featured {
+  color: #016e8f;
+}
+body.page-template-pink-php {
+  background: #8e0048;
+}
+body.page-template-pink-php h3.mast,
+body.page-template-pink-php h3.home_featured {
+  color: #8e0048;
+}
+body.page-template-blue-php {
+  background: #02338f;
+}
+body.page-template-blue-php h3.mast,
+body.page-template-blue-php h3.home_featured {
+  color: #02338f;
+}
+body.page-template-blue-php {
+  background: #67028e;
+}
+body.page-template-blue-php h3.mast,
+body.page-template-blue-php h3.home_featured {
+  color: #67028e;
 }
