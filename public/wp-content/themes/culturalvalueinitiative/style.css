@@ -13,6 +13,9 @@ Version:        1.0.0
 body {
   background: #598e02;
 }
+.widget ul li {
+  word-wrap: break-word;
+}
 #header {
   position: relative;
   height: 206px;
