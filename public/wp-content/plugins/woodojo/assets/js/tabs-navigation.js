@@ -19,6 +19,10 @@ jQuery(document).ready( function($) {
 		
 		// If the link is a tab, show only the specified tab.
 		var toShow = jQuery( this ).attr( 'href' );
+
+		// Remove the first occurance of # from the selected string (will be added manually below).
+		toShow = toShow.replace( '#', '', toShow );
+
 		jQuery( '#woodojo h3, #woodojo form > p:not(".submit"), #woodojo table' ).hide();
 		jQuery( 'h3#' + toShow ).show().nextUntil( 'h3.section-heading', 'p, table, table p' ).show();
 		

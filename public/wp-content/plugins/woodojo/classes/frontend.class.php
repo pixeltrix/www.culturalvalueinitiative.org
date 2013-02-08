@@ -19,7 +19,7 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - __construct()
  */
 class WooDojo_Frontend extends WooDojo_Base {
-	function __construct() {
+	public function __construct() {
 		parent::__construct();
 	} // End __construct()
 }

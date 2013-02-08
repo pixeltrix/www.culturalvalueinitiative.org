@@ -1,4 +1,33 @@
 *** WooDojo Changelog ***
+2013.02.05 - version 1.5.2
+ * /bundled/woodojo-tab-grouping/classes/class-woodojo-tab-grouping.php - Code Standards. Correctly hook form actions. Fix reload location on edit. Fix nonce name on delete. Correctly handle slug name changes on edit. Make sure the admin styling is loading correctly on this screen, to display the correct screen icon.
+ * /bundled/woodojo-tab-grouping/classes/class-list-table.php - Correct nonce name for edit.
+ 
+2013.01.31 - version 1.5.1
+ * /classes/settings-api.class.php - Added filter for select form input.
+
+2013.01.14 - version 1.5.0
+ * /bundled/woodojo-social-widgets/widgets/widget-woodojo-tweets.php - Adjust API request to better handle Twitter API errors. Added "retweeted via username" to tweets that are retweets of others.
+ * /classes/transmitter-installer.class.php - REMOVED.
+ * /bundled/woodojo-html-term-description/ - ADDED.
+ * /bundled/woodojo-tab-grouping/ - ADDED.
+ * /assets/screenshots/woodojo-html-term-description-screenshot.png - Added screenshot for the HTML Term Description bundled feature.
+ * /assets/screenshots/woodojo-tab-grouping-screenshot.png - Added screenshot for the Tab Grouping bundled feature.
+ * woodojo.php - Remove the code to require the WooTransmitter installer file.
+
+2012.12.13 - version 1.4.1
+ * /assets/js/tabs-navigation.js - WordPress 3.5 and jQuery 1.8.2 compatibility.
+ * /classes/admin.class.php - Add method scope to methods with no scope.
+ * woodojo.php - Optimised WooDojo initialisation.
+
+2012.12.11 - version 1.4.0
+ * /bundled/woodojo-social-widgets/widgets/widget-woodojo-tweets.php - Make sure all mentions in a tweet are linked, if the setting is enabled (not just the first mention). Store backup of tweet data in case request fails and transient doesn't exist.
+ * /bundled/woodojo-social-widgets/widgets/widget-woodojo-instagram.php - Prevent potential "undefined offset" notices when WP_DEBUG is active.
+ * /classes/base.class.php - Make sure the plugin_path property is using the plugin_dir_path() function. Make sure a component is never loaded twice.
+ * /classes/frontend.class.php - Add missing scope to class constructor method.
+ * /classes/model.class.php - Add missing scope to class constructor method.
+ * /assets/screenshots/woodojo-widget-preview-screenshot.png - Adds screenshot for "WooDojo - Widget Preview".
+ * /bundled/woodojo-widget-preview/* - Moves the "WooDojo - Widget Preview" feature to be a bundled feature instead of downloadable.
 
 2012.10.18 - version 1.3.0
  * /classes/api.class.php - Remove all token and registration functionality.

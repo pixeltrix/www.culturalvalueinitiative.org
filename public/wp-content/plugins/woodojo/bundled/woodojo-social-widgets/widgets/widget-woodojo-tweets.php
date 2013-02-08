@@ -55,7 +55,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		$this->woo_widget_cssclass = 'widget_woodojo_tweets';
 		$this->woo_widget_description = __( 'This is a WooDojo bundled tweets widget.', 'woodojo' );
 		$this->woo_widget_idbase = 'woodojo_tweets';
-		$this->woo_widget_title = __('WooDojo - Tweets', 'woodojo' );
+		$this->woo_widget_title = __( 'WooDojo - Tweets', 'woodojo' );
 		
 		$this->transient_expire_time = 60 * 60; // 1 hour.
 
@@ -134,7 +134,11 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 				$html .= '<li class="tweet-number-' . esc_attr( ( $k + 1 ) ) . '">' . "\n";
 				$html .= $text . "\n";
-				$html .= '<small class="time-ago"><a href="' . esc_url( 'https://twitter.com/#!/' . urlencode( $instance['twitter_handle'] ) . '/status/' . $v->id_str ) . '">' . human_time_diff( strtotime( $v->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'woodojo' ) . '</a></small>' . "\n";
+				$html .= '<small class="time-ago"><a href="' . esc_url( 'https://twitter.com/' . urlencode( $instance['twitter_handle'] ) . '/status/' . $v->id_str ) . '">' . human_time_diff( strtotime( $v->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'woodojo' ) . '</a>';
+				if ( isset( $v->retweeted_status ) && isset( $v->retweeted_status->id_str ) && isset( $v->retweeted_status->user->screen_name ) ) {
+					$html .= ' ' . __( 'retweeted via', 'woodojo' ) . ' <a href="' . esc_url( 'https://twitter.com/' . urlencode( $v->retweeted_status->user->screen_name ) . '/status/' . $v->retweeted_status->id_str ) . '">' . $v->retweeted_status->user->screen_name . '</a>';
+				}
+				$html .= '</small>' . "\n";
 				$html .= '</li>' . "\n";
 			}
 			$html .= '</ul>' . "\n";
@@ -262,13 +266,16 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	public function get_stored_data ( $args ) {
 		$data = array();
 		$transient_key = $this->id . '-tweets';
-		
+
 		if ( false === ( $data = get_transient( $transient_key ) ) ) {
 			$response = $this->request_tweets( $args );
 
-			if ( isset( $response[0]->user->id ) ) {
+			if ( ! is_wp_error( $response ) && is_array( $response ) && isset( $response[0]->user->id ) ) {
 				$data = $response;
 				set_transient( $transient_key, $data, $this->transient_expire_time );
+				update_option( $transient_key, $data );
+			} else {
+				$data = get_option( $transient_key, array() );
 			}
 		}
 
@@ -281,12 +288,20 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	 * @return array
 	 */
 	public function request_tweets ( $args ) {
+
+		if( !isset( $args['username']) || $args['username'] == '' ){
+			return array();
+		}
+
 		$data = array();
 		
-		$url = 'https://api.twitter.com/1/statuses/user_timeline.json?id=' . urlencode( $args['username'] );
-		if ( $args['limit'] != '' ) { $url .= '&count=' . intval( $args['limit'] ); }
-		if ( $args['include_retweets'] == true ) { $url .= '&include_rts=1'; }
-		if ( $args['exclude_replies'] == true ) { $url .= '&exclude_replies=1'; }
+		$url = 'https://api.twitter.com/1/statuses/user_timeline.json';
+
+		$url = add_query_arg( array( 'id' => $args['username'] ), $url );
+
+		if ( $args['limit'] != '' ) { $url = add_query_arg( array( 'count' => intval( $args['limit'] ) ) ,$url ); }
+		if ( $args['include_retweets'] == true ) { $url = add_query_arg( array( 'include_rts' => 1 ) ,$url ); }
+		if ( $args['exclude_replies'] == true ) { $url = add_query_arg( array( 'exclude_replies' => 1 ), $url ); }
 
 		$response = wp_remote_get( $url, array(
 			'method' => 'GET',
@@ -304,8 +319,10 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		if( is_wp_error( $response ) ) {
 		   $data = array();
 		} else {
-		   $response = json_decode( $response['body'] );
-			if ( isset( $response[0]->user->id ) ) {
+			$response = json_decode( $response['body'] );
+			if ( isset( $response->error ) ) {
+				$data = array();
+			} else if ( isset( $response[0]->user->id ) ) {
 				$data = $response;
 			}
 		}
@@ -333,19 +350,29 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	private function find_mentions ( $str ) {
 	    $pattern = "/@([A-Za-z0-9_]+)/";
 	    $str = trim( $str );
-	    preg_match( $pattern, $str, $matches );
+	    $all_names = array();
+	    preg_match_all( $pattern, $str, $matches );
 
 	    if( $matches ) {
 	        $counter = 0;
+	        $count = 0;
 	        $name_list = array();
-	        $name_list[$counter++] = $matches[1];
+	        if ( is_array( $matches[1] ) ) {
+	        	foreach ( $matches[1] as $k => $v ) {
+	        		$name_list[$counter++] = $v;
+	        	}
+	        } else {
+	        	$name_list[$counter++] = $matches[1];
+	        }
 	 
 	        do {
-	            preg_match( $pattern, $matches[2], $more_matches );
-	            $name_list[$counter++]  = $more_matches[1];
-	            $count = count($more_matches);
-	            $matches[2]=$more_matches[($count-1)];
-	            $more_matches = "";
+	            if ( isset( $matches[2] ) ) {
+	            	preg_match( $pattern, $matches[2], $more_matches );
+		            $name_list[$counter++]  = $more_matches[1];
+		            $count = count($more_matches);
+		            $matches[2]=$more_matches[($count-1)];
+		            $more_matches = "";
+		        }
 	        } while( $count>=3 );
 	 
 	        if( ! empty( $name_list ) ) {

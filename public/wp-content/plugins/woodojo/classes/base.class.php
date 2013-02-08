@@ -69,21 +69,23 @@ class WooDojo_Base {
 	
 	var $models_path;
 	var $models_url;
+
+	private $loaded_components;
 	
 	/**
-	 * __construct function.
+	 * Class Constructor.
 	 * 
 	 * @access public
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function __construct() {
+	public function __construct() {
 		/* Setup default name and token. */
 		$this->name = __( 'WooDojo', 'woodojo' );
 		$this->token = 'woodojo';
-		
+
 		/* Setup plugin path and URL. */
-		$this->plugin_path = trailingslashit( str_replace( '/classes', '', dirname( __FILE__ ) ) );
+		$this->plugin_path = trailingslashit( str_replace( '/classes', '', plugin_dir_path( __FILE__ ) ) );
 		$this->plugin_url = trailingslashit( str_replace( '/classes', '', plugins_url( plugin_basename( dirname( __FILE__ ) ) ) ) );
 
 		/* Cater for Windows systems where / is not present. */
@@ -113,12 +115,15 @@ class WooDojo_Base {
 		/* Setup models path and URL. */
 		$this->models_path = trailingslashit( $this->plugin_path . 'models' );
 		$this->models_url = trailingslashit( $this->plugin_url . 'models' );
+
+		/* Keep track of loaded components. */
+		$this->loaded_components = array();
 		
 		add_action( 'plugins_loaded', array( &$this, 'init_component_loaders' ) );
 	} // End __construct()
 	
 	/**
-	 * init_component_loaders function.
+	 * Initialise the component loaders.
 	 *
 	 * @description Load active components.
 	 * @access public
@@ -131,11 +136,11 @@ class WooDojo_Base {
 	} // End init_component_loaders()
 	
 	/**
-	 * load_active_components function.
+	 * Load the active components of a given type.
 	 * 
 	 * @access public
 	 * @since 1.0.0
-	 * @param $type
+	 * @param string $type
 	 * @return void
 	 */
 	public function load_active_components ( $type = 'bundled' ) {
@@ -147,8 +152,9 @@ class WooDojo_Base {
 			do_action( $this->token . '_load_' . $type . '_components_before' ); // eg: woodojo_load_bundled_components_before
 			foreach ( $components as $k => $v ) {
 				do_action( $this->token . '_load_' . $type . '_component_' . $k . '_before' ); // eg: woodojo_load_bundled_component_woo-tabs_before
-				if ( file_exists( $path . $v ) ) {
+				if ( file_exists( $path . $v ) && ! in_array( $v, $this->loaded_components ) ) {
 					require_once( $path . $v );
+					$this->loaded_components[] = $v;
 				}
 				do_action( $this->token . '_load_' . $type . '_component_' . $k . '_after' ); // eg: woodojo_load_bundled_component_woo-tabs_after
 			}
@@ -157,7 +163,7 @@ class WooDojo_Base {
 	} // End load_active_components()
 	
 	/**
-	 * get_directory_by_type function.
+	 * Retrieve the directory path for a given type of component.
 	 * 
 	 * @access public
 	 * @since 1.0.0
@@ -183,5 +189,5 @@ class WooDojo_Base {
 		
 		return $path;
 	} // End get_directory_by_type()
-}
+} // End Class
 ?>

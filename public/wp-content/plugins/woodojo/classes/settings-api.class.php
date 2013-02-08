@@ -464,6 +464,8 @@ class WooDojo_Settings_API {
 	public function form_field_select ( $args ) {
 		$options = $this->get_settings();
 		
+		$args['data']['options'] = apply_filters( 'settings_' . $this->token . '_' . $args['key'], $args['data']['options'] );
+
 		if ( isset( $args['data']['options'] ) && ( count( (array)$args['data']['options'] ) > 0 ) ) {
 			$html = '';
 			$html .= '<select id="' . $args['key'] . '" name="' . $this->token . '[' . $args['key'] . ']">' . "\n";

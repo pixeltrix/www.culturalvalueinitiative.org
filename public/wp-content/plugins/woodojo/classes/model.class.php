@@ -19,7 +19,6 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * var $active_components
  * var $components
  * var $sections
- * protected $username
  *
  * - __construct()
  * - is_active_component()
@@ -47,9 +46,7 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  */
 class WooDojo_Model {
 	var $active_components;
-	protected $username;
-	
-	function __construct() {
+	public function __construct() {
 		global $woodojo;
 		
 		$this->config = $woodojo->base;
@@ -688,5 +685,5 @@ class WooDojo_Model {
 
 		return $message;
 	} // End get_request_error()
-}
+} // End Class
 ?>

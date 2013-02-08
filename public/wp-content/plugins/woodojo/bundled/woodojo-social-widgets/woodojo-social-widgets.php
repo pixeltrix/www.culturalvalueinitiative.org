@@ -2,7 +2,7 @@
 /**
  * Module Name: WooDojo - Social Widgets
  * Module Description: A collection of widgets to connect to your online social profiles.
- * Module Version: 1.1.1
+ * Module Version: 1.1.2
  *
  * @package WooDojo
  * @subpackage Bundled

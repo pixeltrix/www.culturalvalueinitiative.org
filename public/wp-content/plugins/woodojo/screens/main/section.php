@@ -13,7 +13,7 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
 			foreach ( $v as $i => $j ) {
 				$count++;
 				include( $this->model->config->screens_path . 'main/component-item.php' );
-				if($count == 3) {
+				if( 3 == $count ) {
 					echo('<br class="clear" />');
 					$count = 0;
 				}

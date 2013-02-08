@@ -461,9 +461,9 @@ class WooDojo_Widget_Instagram extends WP_Widget {
 		wp_enqueue_style( 'woodojo-social-widgets' );
 
 		$instance = $this->get_settings();
-		$instance = $instance[$this->number];
+		if ( isset( $instance[$this->number] ) ) $instance = $instance[$this->number];
 
-		if ( $instance['enable_thickbox'] == true ) {
+		if ( isset( $instance['enable_thickbox'] ) && $instance['enable_thickbox'] == true ) {
 			wp_enqueue_style( 'thickbox' );
 		}
 	} // End enqueue_styles()
@@ -477,9 +477,9 @@ class WooDojo_Widget_Instagram extends WP_Widget {
 	 */
 	public function enqueue_scripts () {
 		$instance = $this->get_settings();
-		$instance = $instance[$this->number];
+		if ( isset( $instance[$this->number] ) ) $instance = $instance[$this->number];
 
-		if ( $instance['enable_thickbox'] == true ) {
+		if ( isset( $instance['enable_thickbox'] ) && $instance['enable_thickbox'] == true ) {
 			wp_enqueue_script( 'thickbox' );
 		}
 	} // End enqueue_scripts()

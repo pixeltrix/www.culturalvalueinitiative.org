@@ -32,8 +32,8 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - ajax_get_closed_components()
  */
 class WooDojo_Admin extends WooDojo_Base {
-	var $model;
-	var $hook;
+	public $model;
+	public $hook;
 	private $whitelist;
 
 	/**
@@ -43,7 +43,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::__construct();		
 		add_action( 'admin_menu', array( &$this, 'admin_screen_register' ) );
 		add_action( 'wp_ajax_woodojo_component_toggle', array( &$this, 'ajax_component_toggle' ) );
@@ -62,7 +62,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function admin_screen_register () {
+	public function admin_screen_register () {
 		$hook = add_menu_page( $this->name, $this->name, 'manage_options', $this->token, array( $this, 'admin_screen' ), $this->assets_url . 'images/menu-icon.png' );
 		
 		add_action( 'load-' . $hook, array( $this, 'admin_page_load' ) );
@@ -89,7 +89,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @param mixed $menu_order
 	 * @return void
 	 */
-	function admin_menu_order ( $menu_order ) {
+	public function admin_menu_order ( $menu_order ) {
 		$new_menu_order = array();
 		foreach ( $menu_order as $index => $item ) {
 			if ( $item != $this->token )
@@ -109,7 +109,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function admin_screen () {
+	public function admin_screen () {
 		$screen = 'main';
 		if ( isset( $_GET['screen'] ) && ( '' != $_GET['screen'] ) ) {
 			$screen = esc_attr( trim( $_GET['screen'] ) );
@@ -136,7 +136,7 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @uses global $woodojo->api->refresh()
 	 * @return void
 	 */
-	function admin_page_load () {
+	public function admin_page_load () {
 		global $woodojo;
 
 		require_once( 'model.class.php' );
@@ -177,9 +177,8 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function admin_styles () {
+	public function admin_styles () {
 		wp_register_style( $this->token . '-admin', $this->assets_url . 'css/admin.css', '', '1.2.4', 'screen' );
-		
 		wp_enqueue_style( $this->token . '-admin' );
 	} // End admin_styles()
 	
@@ -190,9 +189,8 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function admin_styles_global () {
+	public function admin_styles_global () {
 		wp_register_style( $this->token . '-global', $this->assets_url . 'css/global.css', '', '1.2.4', 'screen' );
-		
 		wp_enqueue_style( $this->token . '-global' );
 	} // End admin_styles_global()
 	
@@ -203,9 +201,8 @@ class WooDojo_Admin extends WooDojo_Base {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	function admin_scripts () {
+	public function admin_scripts () {
 		wp_register_script( $this->token . '-admin', $this->assets_url . 'js/admin.js', array( 'jquery' ), '1.2.4', false );
-		
 		wp_enqueue_script( $this->token . '-admin' );
 		
 		$translation_strings = WooDojo_Utils::load_common_l10n();
@@ -227,11 +224,9 @@ class WooDojo_Admin extends WooDojo_Base {
 	 */
 	public function ajax_component_toggle () {
 		$nonce = $_POST[$this->token . '_component_toggle_nonce'];
-
 		//Add nonce security to the request
-		if ( ! wp_verify_nonce( $nonce, $this->token . '_component_toggle_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, $this->token . '_component_toggle_nonce' ) )
 			die();
-		}
 		
 		// Make sure our model is available.
 		$this->admin_page_load();
@@ -258,11 +253,9 @@ class WooDojo_Admin extends WooDojo_Base {
 	 */
 	public function ajax_component_display_toggle () {
 		$nonce = $_POST[$this->token . '_component_toggle_nonce'];
-
 		//Add nonce security to the request
-		if ( ! wp_verify_nonce( $nonce, $this->token . '_component_toggle_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, $this->token . '_component_toggle_nonce' ) )
 			die();
-		}
 		
 		// Get stored list of closed components.
 		$closed = get_option( $this->token . '_closed_components', array() );
@@ -303,17 +296,13 @@ class WooDojo_Admin extends WooDojo_Base {
 	 */
 	public function ajax_get_closed_components () {
 		$nonce = $_POST[$this->token . '_component_toggle_nonce'];
-
 		//Add nonce security to the request
-		if ( ! wp_verify_nonce( $nonce, $this->token . '_component_toggle_nonce' ) ) {
+		if ( ! wp_verify_nonce( $nonce, $this->token . '_component_toggle_nonce' ) )
 			die();
-		}
 		
 		// Get stored list of closed components.
 		$closed = get_option( $this->token . '_closed_components', array() );
-		
 		echo json_encode( $closed );
-
 		die(); // WordPress may print out a spurious zero without this can be particularly bad if using JSON
 	} // End ajax_get_closed_components()
 }
