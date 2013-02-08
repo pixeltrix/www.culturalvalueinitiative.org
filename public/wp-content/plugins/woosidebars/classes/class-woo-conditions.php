@@ -13,13 +13,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  *
  * TABLE OF CONTENTS
  *
- * var $token
- * var $conditions
- * var $conditions_headings
- * var $conditions_reference
- * var $meta_box_settings
- * var $assets_url
- * var $plugin_url
+ * public $token
+ * public $conditions
+ * public $conditions_headings
+ * public $conditions_reference
+ * public $meta_box_settings
+ * private $assets_url
+ * private $plugin_url
  *
  * - __construct()
  * - get_conditions()
@@ -37,13 +37,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * - enqueue_scripts()
  */
 class Woo_Conditions {
-	var $token = '';
-	var $conditions = array();
-	var $conditions_headings = array();
-	var $conditions_reference = array();
-	var $meta_box_settings = array();
-	var $assets_url;
-	var $plugin_url;
+	public $token = '';
+	public $conditions = array();
+	public $conditions_headings = array();
+	public $conditions_reference = array();
+	public $meta_box_settings = array();
+	private $assets_url;
+	private $plugin_url;
 	
 	/**
 	 * __construct function.
@@ -51,7 +51,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function __construct () {
+	public function __construct () {
 		$this->meta_box_settings['title'] = __( 'Conditions', 'woosidebars' );
 		
 		if ( is_admin() && get_post_type() == $this->token || ! get_post_type() ) {
@@ -78,7 +78,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function get_conditions () {
+	public function get_conditions () {
 		$this->determine_conditions();
 
 		$this->conditions = apply_filters( 'woo_conditions', $this->conditions );
@@ -92,7 +92,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function determine_conditions () {		
+	public function determine_conditions () {		
 		$this->is_hierarchy();
 		$this->is_taxonomy();
 		$this->is_post_type_archive();
@@ -106,14 +106,18 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function setup_default_conditions_reference () {
+	public function setup_default_conditions_reference () {
 		$conditions = array();
 		$conditions_headings = array();
 		
+		// Get an array of the different post status labels, in case we need it later.
+		$post_statuses = get_post_statuses();
+
 		// Pages
 		$conditions['pages'] = array();
 		
-		$pages = get_pages();
+		$statuses_string = join( ',', array_keys( $post_statuses ) );
+		$pages = get_pages( array( 'post_status' => $statuses_string ) );
 		
 		if ( count( $pages ) > 0 ) {
 		
@@ -121,8 +125,13 @@ class Woo_Conditions {
 			
 			foreach ( $pages as $k => $v ) {
 				$token = 'post-' . $v->ID;
+				$label = $v->post_title;
+				if ( 'publish' != $v->post_status ) {
+					$label .= ' <strong>(' . $post_statuses[$v->post_status] . ')</strong>';
+				}
+
 				$conditions['pages'][$token] = array(
-									'label' => $v->post_title, 
+									'label' => $label, 
 									'description' => sprintf( __( 'The "%s" page', 'woosidebars' ), $v->post_title )
 									);
 			}
@@ -153,7 +162,6 @@ class Woo_Conditions {
 		}
 		
 		// Add per-post support for any post type that supports it.
-		
 		$args = array(
 				'show_ui' => true,
 				'public' => true,
@@ -169,20 +177,24 @@ class Woo_Conditions {
 				break;
 			}
 		}
-		
+
 		foreach ( $post_types as $k => $v ) {
 			if ( ! post_type_supports( $k, 'woosidebars' ) ) { continue; }
 			
 			$conditions_headings[$k] = $v->labels->name;
 			
-			$query_args = array( 'numberposts' => -1, 'post_type' => $k, 'meta_key' => '_enable_sidebar', 'meta_value' => 'yes', 'meta_compare' => '=' );
+			$query_args = array( 'numberposts' => -1, 'post_type' => $k, 'meta_key' => '_enable_sidebar', 'meta_value' => 'yes', 'meta_compare' => '=', 'post_status' => 'any' );
 			
 			$posts = get_posts( $query_args );
 			
 			if ( count( $posts ) > 0 ) {
 				foreach ( $posts as $i => $j ) {
+					$label = $j->post_title;
+					if ( 'publish' != $j->post_status ) {
+						$label .= ' <strong>(' . $post_statuses[$j->post_status] . ')</strong>';
+					}
 					$conditions[$k]['post' . '-' . $j->ID] = array(
-										'label' => $j->post_title, 
+										'label' => $label, 
 										'description' => sprintf( __( 'A custom sidebar for "%s"', 'woosidebars' ), esc_attr( $j->post_title ) )
 										);
 				}					
@@ -228,7 +240,7 @@ class Woo_Conditions {
 			foreach ( $post_types as $k => $v ) {
 				$token = 'post-type-' . $k;
 				$conditions['post_types'][$token] = array(
-									'label' => sprintf( __( 'Individual %s', 'woosidebars' ), $v->labels->name ), 
+									'label' => sprintf( __( 'Each Individual %s', 'woosidebars' ), $v->labels->singular_name ), 
 									'description' => sprintf( __( 'Entries in the "%s" post type', 'woosidebars' ), $v->labels->name )
 									);
 			}
@@ -354,6 +366,7 @@ class Woo_Conditions {
 		if ( is_singular() ) {
 			$this->conditions[] = 'singular';
 			$this->conditions[] = 'post-type-' . get_post_type();
+			$this->conditions[] = get_post_type();
 
 			$categories = get_the_category( get_the_ID() );
 
@@ -402,7 +415,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function is_taxonomy () {
+	public function is_taxonomy () {
 		if ( ( is_tax() || is_archive() ) && ! is_post_type_archive() ) {
 			$obj = get_queried_object();
 
@@ -421,7 +434,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function is_post_type_archive () {
+	public function is_post_type_archive () {
 		if ( is_post_type_archive() ) {
 			$this->conditions[] = 'post-type-archive-' . get_post_type();
 		}
@@ -434,7 +447,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function is_page_template () {
+	public function is_page_template () {
 		if ( is_singular() ) {
 			global $post;
 			$template = get_post_meta( $post->ID, '_wp_page_template', true );
@@ -451,7 +464,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function meta_box_setup () {		
+	public function meta_box_setup () {		
 		add_meta_box( 'woo-conditions', $this->meta_box_settings['title'], array( &$this, 'meta_box_content' ), $this->token, 'normal', 'low' );
 	} // End meta_box_setup()
 	
@@ -461,7 +474,7 @@ class Woo_Conditions {
 	 * @access public
 	 * @return void
 	 */
-	function meta_box_content () {
+	public function meta_box_content () {
 		global $post_id;
 
 		if ( count( $this->conditions_reference ) <= 0 ) $this->setup_default_conditions_reference();
@@ -490,7 +503,7 @@ class Woo_Conditions {
 			
 			$html .= '<div id="taxonomy-category" class="categorydiv tabs woo-conditions">' . "\n";
 			
-				$html .= '<ul id="category-tabs" class="conditions-tabs">' . "\n";
+				$html .= '<ul id="category-tabs" class="conditions-tabs alignleft">' . "\n";
 				
 				$count = 0;
 
@@ -523,10 +536,10 @@ class Woo_Conditions {
 				
 				$class = 'hide-if-no-js advanced';
 				if ( ! $show_advanced ) { $class .= ' hide'; }
-				
-				$html .= '<li class="advanced-settings alignright hide-if-no-js"><a href="#">' . __( 'Advanced', 'woosidebars' ) . '</a></li>' . "\n";
 
 				$html .= '</ul>' . "\n";
+
+				$html .= '<ul class="conditions-tabs"><li class="advanced-settings alignright hide-if-no-js"><a href="#">' . __( 'Advanced', 'woosidebars' ) . '</a></li></ul>' . "\n";
 			
 			foreach ( $this->conditions_reference as $k => $v ) {
 				$count = 0;
@@ -627,7 +640,7 @@ class Woo_Conditions {
 	 * @param mixed $post_id
 	 * @return void
 	 */
-	function meta_box_save ( $post_id ) {
+	public function meta_box_save ( $post_id ) {
 		global $post, $messages;
 		
 		// Verify
@@ -702,7 +715,7 @@ class Woo_Conditions {
 		if ( get_post_type() != $this->token ) { return; }
 		
 		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) ) {
-			wp_register_script( $this->token . '-admin', $this->assets_url . '/js/admin.js', array( 'jquery', 'jquery-ui-tabs' ), '1.0.0', true );
+			wp_register_script( $this->token . '-admin', $this->assets_url . '/js/admin.js', array( 'jquery', 'jquery-ui-tabs' ), '1.2.1', true );
 			
 			wp_enqueue_script( $this->token . '-admin' );
 			
