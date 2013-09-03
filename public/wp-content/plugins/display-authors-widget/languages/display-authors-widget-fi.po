@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Multi Author Widget v0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-10-01 17:03+0200\n"
-"PO-Revision-Date: 2012-10-01 17:03+0200\n"
+"POT-Creation-Date: 2013-02-18 10:23+0200\n"
+"PO-Revision-Date: 2013-02-18 10:23+0200\n"
 "Last-Translator: Sami Keijonen <sami.keijonen@foxnet.fi>\n"
 "Language-Team: Foxnet <sami.keijonen@foxnet.fi>\n"
 "Language: fi\n"
@@ -14,67 +14,71 @@ msgstr ""
 "esc_html__;esc_html_e;_n;_x:1,2c;_n_noop:1,2;_n:1,2\n"
 "X-Poedit-Basepath: ../\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 1.5.3\n"
+"X-Generator: Poedit 1.5.5\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: multi-author-widget.php:42
+#: display-authors-widget.php:42
 msgid "Displays authors by role."
 msgstr "Näytä kirjoittajat roolin mukaan."
 
-#: multi-author-widget.php:55
+#: display-authors-widget.php:55
 msgid "Display Authors Widget"
 msgstr "Näytä kirjoittajat"
 
-#: multi-author-widget.php:114
+#: display-authors-widget.php:132
 #, php-format
 msgid "(%d)"
 msgstr "(%d)"
 
-#: multi-author-widget.php:166
+#: display-authors-widget.php:187
 msgid "Authors"
 msgstr "Kirjoittajat"
 
-#: multi-author-widget.php:182
+#: display-authors-widget.php:204
 msgid "Title:"
 msgstr "Otsikko:"
 
-#: multi-author-widget.php:187
+#: display-authors-widget.php:209
 msgid "Role:"
 msgstr "Rooli:"
 
-#: multi-author-widget.php:197
+#: display-authors-widget.php:219
 msgid "Display Post Count?"
 msgstr "Näytä artikkelien lukumäärä?"
 
-#: multi-author-widget.php:202
+#: display-authors-widget.php:224
 msgid "Display Author Bio?"
 msgstr "Näytä bio?"
 
-#: multi-author-widget.php:207
+#: display-authors-widget.php:229
 msgid "Display Author Gravatar?"
 msgstr "Näytä gravatar?"
 
-#: multi-author-widget.php:211
+#: display-authors-widget.php:234
+msgid "Display Author Name?"
+msgstr "Näytä kirjoittajan nimi?"
+
+#: display-authors-widget.php:238
 msgid "Gravatar Size:"
 msgstr "Gravatarin koko:"
 
-#: multi-author-widget.php:216
+#: display-authors-widget.php:243
 msgid "Gravatar Alignment:"
 msgstr "Gravatarin asemointi:"
 
-#: multi-author-widget.php:218
+#: display-authors-widget.php:245
 msgid "None"
 msgstr "Ei mitään"
 
-#: multi-author-widget.php:218
+#: display-authors-widget.php:245
 msgid "Left"
 msgstr "Vasen"
 
-#: multi-author-widget.php:218
+#: display-authors-widget.php:245
 msgid "Right"
 msgstr "Oikea"
 
-#: multi-author-widget.php:226
+#: display-authors-widget.php:253
 msgid "Limit the number of authors displayed:"
 msgstr "Kuinka monta kirjoittajaa näytetään."
 

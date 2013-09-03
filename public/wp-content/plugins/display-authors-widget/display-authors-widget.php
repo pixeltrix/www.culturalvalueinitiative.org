@@ -3,7 +3,7 @@
  * Plugin Name: Display Authors Widget
  * Plugin URI: http://foxnet.fi/en
  * Description: Register widget to display authors by role in a sidebar.
- * Version: 0.1
+ * Version: 0.1.1
  * Author: Sami Keijonen
  * Author URI: http://foxnet.fi/en
  *
@@ -15,7 +15,7 @@
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @package MultiAuthorWidget
- * @version 0.1
+ * @version 0.1.1
  * @author Sami Keijonen <sami.keijonen@foxnet.fi>
  * @copyright Copyright (c) 2012, Sami Keijonen
  * @link http://justintadlock.com/archives/2009/05/26/the-complete-guide-to-creating-widgets-in-wordpress-28
@@ -51,10 +51,10 @@ class Display_Authors_Widget extends WP_Widget {
 
 		/* Create the widget. */
 		$this->WP_Widget(
-			'display-authors-widget',								// $this->id_base
+			'display-authors-widget',									// $this->id_base
 			__( 'Display Authors Widget', 'display-authors-widget' ),	// $this->name
-			$widget_options,									// $this->widget_options
-			$control_options									// $this->control_options
+			$widget_options,											// $this->widget_options
+			$control_options											// $this->control_options
 		);
 	}
 	
@@ -117,7 +117,12 @@ class Display_Authors_Widget extends WP_Widget {
 					
 					<?php do_action( 'display_authors_widget_before_author' ); // action hook display_authors_widget_before_author ?>
 					
-					<a href="<?php echo get_author_posts_url( $id ); ?>" title="<?php the_author_meta( 'display_name', $id ); ?>"><?php the_author_meta( 'display_name', $id ); ?></a>
+					<?php
+					/* Output the authors name if selected. */
+					if ( $instance['show_author_name'] ) { ?>
+						<a href="<?php echo get_author_posts_url( $id ); ?>" title="<?php the_author_meta( 'display_name', $id ); ?>"><?php the_author_meta( 'display_name', $id ); ?></a>
+					<?php } ?>
+					
 					
 					<?php do_action( 'display_authors_widget_after_author' ); // action hook display_authors_widget_after_author ?>
 					
@@ -161,6 +166,7 @@ class Display_Authors_Widget extends WP_Widget {
 		$instance['show_post_count'] = strip_tags( $new_instance['show_post_count'] );
 		$instance['show_bio'] = strip_tags( $new_instance['show_bio'] );
 		$instance['show_gravatar'] = strip_tags( $new_instance['show_gravatar'] );
+		$instance['show_author_name'] = strip_tags( $new_instance['show_author_name'] );
 		$instance['avatar_size'] = strip_tags( $new_instance['avatar_size'] );
 		$instance['avatar_align'] = strip_tags( $new_instance['avatar_align'] );
 		$instance['limit'] = strip_tags( $new_instance['limit'] );
@@ -178,14 +184,15 @@ class Display_Authors_Widget extends WP_Widget {
 
 		/* Set up the defaults. */
 		$defaults = apply_filters( 'display_authors_widget_defaults', array(
-			'title' 			=> __( 'Authors', 'display-authors-widget' ),
-			'role' 				=> 'editor',
-			'show_post_count'	=> 1,
-			'show_bio' 			=> 1,
-			'show_gravatar'		=> 1,
-			'avatar_size'		=> '60',
-			'avatar_align'		=> 'alignleft',
-			'limit'				=> 50
+			'title' 				=> __( 'Authors', 'display-authors-widget' ),
+			'role' 					=> 'editor',
+			'show_post_count'		=> 1,
+			'show_bio' 				=> 1,
+			'show_gravatar'			=> 1,
+			'show_author_name'		=> 1,
+			'avatar_size'			=> '60',
+			'avatar_align'			=> 'alignleft',
+			'limit'					=> 50
 	
 		) );
 
@@ -220,6 +227,11 @@ class Display_Authors_Widget extends WP_Widget {
 			<p>
 				<input type="checkbox" value="1" <?php checked( '1', $instance['show_gravatar'] ); ?> id="<?php echo $this->get_field_id( 'show_gravatar' ); ?>" name="<?php echo $this->get_field_name( 'show_gravatar' ); ?>" />
 				<label for="<?php echo $this->get_field_id( 'show_gravatar' ); ?>"><?php _e( 'Display Author Gravatar?' , 'display-authors-widget' ); ?></label> 
+			</p>
+			
+			<p>
+				<input type="checkbox" value="1" <?php checked( '1', $instance['show_author_name'] ); ?> id="<?php echo $this->get_field_id( 'show_author_name' ); ?>" name="<?php echo $this->get_field_name( 'show_author_name' ); ?>" />
+				<label for="<?php echo $this->get_field_id( 'show_author_name' ); ?>"><?php _e( 'Display Author Name?' , 'display-authors-widget' ); ?></label> 
 			</p>
 
 			<p>

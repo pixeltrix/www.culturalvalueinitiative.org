@@ -3,8 +3,8 @@ Contributors: sami.keijonen
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=E65RCFVD3QGYU
 Tags: widget-only, widget, author, authors, multi, role 
 Requires at least: 3.4
-Tested up to: 3.4.2
-Stable tag: 0.1
+Tested up to: 3.5.1
+Stable tag: 0.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,11 @@ Go to Appearance >> Widgets. There you can find widget called Display Authors Wi
 1. Display Authors Widget
 
 == Changelog ==
+
+= 0.1.1 =
+
+* Added posibility to not show author name.
+* Language files updated.
 
 = 0.1 =
 * Everything's brand new.
