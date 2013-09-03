@@ -22,12 +22,11 @@ class WPSEO_Rewrite {
 		add_filter( 'request', array( $this, 'request' ) );
 		add_filter( 'category_rewrite_rules', array( $this, 'category_rewrite_rules' ) );
 
-
 		add_action( 'created_category', array( $this, 'schedule_flush' ) );
 		add_action( 'edited_category', array( $this, 'schedule_flush' ) );
 		add_action( 'delete_category', array( $this, 'schedule_flush' ) );
 
-		add_action( 'init', array( $this, 'flush' ), 10 );
+		add_action( 'init', array( $this, 'flush' ), 999 );
 	}
 
 	/**
@@ -69,7 +68,7 @@ class WPSEO_Rewrite {
 
 		$category_base .= '/';
 
-		return preg_replace( '|' . $category_base . '|', '', $link, 1 );
+		return preg_replace( '`' . preg_quote( $category_base, '`' ) . '`u', '', $link, 1 );
 	}
 
 	/**

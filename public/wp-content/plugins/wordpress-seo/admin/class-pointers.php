@@ -52,7 +52,9 @@ class WPSEO_Pointers {
 	 * Shows a popup that asks for permission to allow tracking.
 	 */
 	function tracking_request() {
-		$id      = '#wpadminbar';
+		$id    = '#wpadminbar';
+		$nonce = wp_create_nonce( 'wpseo_activate_tracking' );
+
 		$content = '<h3>' . __( 'Help improve WordPress SEO', 'wordpress-seo' ) . '</h3>';
 		$content .= '<p>' . __( 'You\'ve just installed WordPress SEO by Yoast. Please helps us improve it by allowing us to gather anonymous usage stats so we know which configurations, plugins and themes to test with.', 'wordpress-seo' ) . '</p>';
 		$opt_arr   = array(
@@ -60,10 +62,9 @@ class WPSEO_Pointers {
 			'position' => array( 'edge' => 'top', 'align' => 'center' )
 		);
 		$button2   = __( 'Allow tracking', 'wordpress-seo' );
-		$nonce     = wp_create_nonce( 'wpseo_activate_tracking' );
 
-		$function2 = 'document.location="' . admin_url( 'admin.php?page=wpseo_dashboard&allow_tracking=yes&nonce='.$nonce ) . '";';
-		$function1 = 'document.location="' . admin_url( 'admin.php?page=wpseo_dashboard&allow_tracking=no&nonce='.$nonce ) . '";';
+		$function2 = 'wpseo_store_answer("yes","'.$nonce.'")';
+		$function1 = 'wpseo_store_answer("no","'.$nonce.'")';
 
 		$this->print_scripts( $id, $opt_arr, __( 'Do not allow tracking', 'wordpress-seo' ), $button2, $function2, $function1 );
 	}
@@ -95,19 +96,19 @@ class WPSEO_Pointers {
 			),
 			'wpseo_titles'         => array(
 				'content'  => "<h3>" . __( "Title &amp; Description settings", 'wordpress-seo' ) . "</h3>"
-					. "<p>" . __( "This is were you set the templates for your titles and descriptions of all the different types of pages on your blog, be it your homepage, posts & pages (under post types), category or tag archives (under taxonomy archives), or even custom post type archives and custom posts: all of that is done from here.", 'wordpress-seo' ) . "</p>"
+					. "<p>" . __( "This is where you set the templates for your titles and descriptions of all the different types of pages on your blog, be it your homepage, posts & pages (under post types), category or tag archives (under taxonomy archives), or even custom post type archives and custom posts: all of that is done from here.", 'wordpress-seo' ) . "</p>"
 					. "<p><strong>" . __( "Templates", 'wordpress-seo' ) . "</strong><br/>"
 					. __( "The templates are built using variables, the help tab for all the different variables available to you to use in these.", 'wordpress-seo' ) . "</p>"
 					. "<p><strong>" . __( "Sitewide settings", 'wordpress-seo' ) . "</strong><br/>"
-					. __( "You can also set some sidewide settings here to add specific meta tags or to remove some unneeded cruft.", 'wordpress-seo' ) . "</p>",
+					. __( "You can also set some settings for the entire site here to add specific meta tags or to remove some unneeded cruft.", 'wordpress-seo' ) . "</p>",
 				'button2'  => __( 'Next', 'wordpress-seo' ),
 				'function' => 'window.location="' . admin_url( 'admin.php?page=wpseo_social' ) . '";'
 			),
 			'wpseo_social'         => array(
 				'content'  => "<h3>" . __( "Social settings", 'wordpress-seo' ) . "</h3>"
-					. "<p><strong>" . __( 'Facebook OpenGraph', 'wordpress-seo' ) . '</strong><br/>'
-					. __( "On this page you can enable the OpenGraph functionality from this plugin, as well as assign a Facebook user or Application to be the admin of your site, so you can view the Facebook insights.", 'wordpress-seo' ) . "</p>"
-					. '<p>' . sprintf( __( 'Read more about %1$sFacebook OpenGraph%2$s.', 'wordpress-seo' ), '<a target="_blank" href="http://yoast.com/facebook-open-graph-protocol/#utm_source=wpadmin&utm_medium=wpseo_tour&utm_term=link&utm_campaign=wpseoplugin">', '</a>' ) . "</p>"
+					. "<p><strong>" . __( 'Facebook Open Graph', 'wordpress-seo' ) . '</strong><br/>'
+					. __( "On this page you can enable the Open Graph functionality from this plugin, as well as assign a Facebook user or Application to be the admin of your site, so you can view the Facebook insights.", 'wordpress-seo' ) . "</p>"
+					. '<p>' . sprintf( __( 'Read more about %1$sFacebook Open Graph%2$s.', 'wordpress-seo' ), '<a target="_blank" href="http://yoast.com/facebook-open-graph-protocol/#utm_source=wpadmin&utm_medium=wpseo_tour&utm_term=link&utm_campaign=wpseoplugin">', '</a>' ) . "</p>"
 					. "<p><strong>" . __( 'Twitter Cards', 'wordpress-seo' ) . '</strong><br/>'
 					. sprintf( __( 'This functionality is currently in beta, but it allows for %1$sTwitter Cards%2$s.', 'wordpress-seo' ), '<a target="_blank" href="http://yoast.com/twitter-cards/#utm_source=wpadmin&utm_medium=wpseo_tour&utm_term=link&utm_campaign=wpseoplugin">', '</a>' ) . "</p>",
 				'button2'  => __( 'Next', 'wordpress-seo' ),
@@ -170,13 +171,18 @@ class WPSEO_Pointers {
 			$function = 'document.location="' . admin_url( 'admin.php?page=wpseo_dashboard' ) . '";';
 		} else {
 			if ( '' != $page && in_array( $page, array_keys( $adminpages ) ) ) {
+				$align = ( is_rtl() ) ? 'right' : 'left';
 				$opt_arr  = array(
 					'content'      => $adminpages[$page]['content'],
-					'position'     => array( 'edge' => 'top', 'align' => 'left' ),
+					'position'     => array( 'edge' => 'top', 'align' => $align ),
 					'pointerWidth' => 400
 				);
-				$button2  = $adminpages[$page]['button2'];
-				$function = $adminpages[$page]['function'];
+				if( isset( $adminpages[$page]['button2'] ) ) {
+					$button2  = $adminpages[$page]['button2'];
+				}
+				if( isset( $adminpages[$page]['function'] ) ) {
+					$function = $adminpages[$page]['function'];
+				}
 			}
 		}
 
@@ -187,11 +193,10 @@ class WPSEO_Pointers {
 	 * Load a tiny bit of CSS in the head
 	 */
 	function admin_head() {
+	// Depreciated, marked for removal
+	// No longer needed as the original code is now being handle by an external CSS files that supports RTL
 		?>
 	<style type="text/css" media="screen">
-		#pointer-primary {
-			margin: 0 5px 0 0;
-		}
 	</style>
 	<?php
 	}
@@ -212,6 +217,17 @@ class WPSEO_Pointers {
 		//<![CDATA[
 		(function ($) {
 			var wpseo_pointer_options = <?php echo json_encode( $options ); ?>, setup;
+
+            function wpseo_store_answer( input, nonce ) {
+				var wpseo_tracking_data = {
+					action : 'wpseo_allow_tracking',
+					allow_tracking : input,
+					nonce: nonce
+				}
+				jQuery.post( ajaxurl, wpseo_tracking_data, function() {
+                    jQuery('#wp-pointer-0').remove();
+				} );
+			}
 
 			wpseo_pointer_options = $.extend(wpseo_pointer_options, {
 				buttons:function (event, t) {

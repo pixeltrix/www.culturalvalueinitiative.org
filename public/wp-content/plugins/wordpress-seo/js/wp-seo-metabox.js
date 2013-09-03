@@ -4,7 +4,7 @@ function yst_clean( str ) {
 
     try {
         str = str.replace(/<\/?[^>]+>/gi, '');
-        str = str.replace(/\[(.+?)\](.+?\[\/\\1\])?/, '');
+        str = str.replace(/\[(.+?)\](.+?\[\/\\1\])?/g, '');
     } catch(e) {}
 
     return str;
@@ -87,15 +87,21 @@ function testFocusKw() {
     var focuskwNoDiacritics = removeLowerCaseDiacritics( focuskw );
     p2 = new RegExp(focuskwNoDiacritics.replace(/\s+/g,"[-_\\\//]"),'gim');
 
+    var metadesc = jQuery('#yoast_wpseo_metadesc').val();
+    if ( metadesc == '' )
+        metadesc = jQuery('#wpseosnippet .desc').text();
+    
     if (focuskw != '') {
-        var html = '<p>Your focus keyword was found in:<br/>';
-        html += 'Article Heading: ' + ptest( jQuery('#title').val(), p ) + '<br/>';
-        html += 'Page title: ' + ptest( jQuery('#wpseosnippet .title').text(), p ) + '<br/>';
-        html += 'Page URL: ' + ptest( url, p2 ) + '<br/>';
-        html += 'Content: ' + ptest( jQuery('#content').val(), p ) + '<br/>';
-        html += 'Meta description: ' + ptest( jQuery('#yoast_wpseo_metadesc').val(), p );
-        html += '</p>';
+		var html = '<p>' + objectL10n.keyword_header + '<br />';
+		html += objectL10n.article_header_text + ptest( jQuery('#title').val(), p ) + '<br/>';
+		html += objectL10n.page_title_text + ptest( jQuery('#wpseosnippet .title').text(), p ) + '<br/>';
+		html += objectL10n.page_url_text + ptest( url, p2 ) + '<br/>';
+		html += objectL10n.content_text + ptest( jQuery('#content').val(), p ) + '<br/>';
+		html += objectL10n.meta_description_text + ptest( metadesc, p );
+		html += '</p>';
         jQuery('#focuskwresults').html(html);
+    } else {
+        jQuery('#focuskwresults').html('');
     }
 }
 
@@ -104,26 +110,33 @@ function updateTitle( force ) {
         var title = jQuery("#yoast_wpseo_title").val();
     } else {
         var title = wpseo_title_template.replace('%%title%%', jQuery('#title').val() );
+        title = jQuery('<div />').html(title).text();
     }
     if ( title == '' ) {
         jQuery('#wpseosnippet .title').html( '' );
         jQuery('#yoast_wpseo_title-length').html( '' );
         return;
     }
-
-    title = jQuery('<div />').html(title).text();
-
-    if ( force )
-        jQuery('#yoast_wpseo_title').val( title );
-
+	
     title = yst_clean( title );
     title = jQuery.trim( title );
+    var original_title = title;
+    title = jQuery('<div />').text(title).html();
 
+    if ( force ) {
+        jQuery('#yoast_wpseo_title').val( title );
+    } else {
+        // placeholder needs to be html decoded when being set by jQuery
+        original_title = jQuery('<div />').html(original_title).text();
+        jQuery('#yoast_wpseo_title').attr( 'placeholder', original_title );
+    }
+
+    var len = 70 - title.length;
     if ( title.length > 70 ) {
         var space = title.lastIndexOf( " ", 67 );
         title = title.substring( 0, space ).concat( ' <strong>...</strong>' );
     }
-    var len = 70 - title.length;
+
     if (len < 0)
         len = '<span class="wrong">'+len+'</span>';
     else
@@ -146,6 +159,7 @@ function updateDesc( desc ) {
             var excerpt = yst_clean( jQuery("#excerpt").val() );
             desc = wpseo_metadesc_template.replace('%%excerpt_only%%', excerpt);
             desc = desc.replace('%%excerpt%%', excerpt);
+            desc = jQuery('<div />').html(desc).text();
         }
 
         desc = jQuery.trim ( desc );
@@ -169,6 +183,9 @@ function updateDesc( desc ) {
             autogen = true;
         }
     }
+    
+    desc = jQuery('<div />').text( desc ).html();
+    desc = yst_clean( desc );
 
     if ( !autogen )
         var len = wpseo_meta_desc_length - desc.length;
@@ -243,6 +260,9 @@ jQuery(document).ready(function(){
 
     jQuery('.'+active_tab).addClass('active');
 
+    var desc = jQuery.trim( yst_clean( jQuery("#yoast_wpseo_metadesc").val() ) );
+    desc = jQuery('<div />').html( desc ).text();
+    jQuery("#yoast_wpseo_metadesc").val( desc );
 
     jQuery('a.wpseo_tablink').click( function($) {
         jQuery('.wpseo-metabox-tabs li').removeClass('active');
@@ -301,27 +321,22 @@ jQuery(document).ready(function(){
         updateDesc();
     });
 
-    jQuery('#yoast_wpseo_title').live('change', function() {
+    jQuery(document).on('change', '#yoast_wpseo_title', function() {
         updateTitle();
     });
-    jQuery('#yoast_wpseo_metadesc').live('change', function() {
+    jQuery(document).on('change', '#yoast_wpseo_metadesc', function() {
         updateDesc();
     });
-    jQuery('#yoast_wpseo_focuskw').live('change', function() {
-        jQuery('#wpseo_relatedkeywords').show();
-        jQuery('#wpseo_tag_suggestions').hide();
-        jQuery('#related_keywords_heading').hide();
-    });
-    jQuery('#excerpt').live('change', function() {
+    jQuery(document).on('change', '#excerpt', function() {
         updateDesc();
     });
-    jQuery('#content').live('change', function() {
+    jQuery(document).on('change', '#content', function() {
         updateDesc();
     });
-    jQuery('#tinymce').live('change', function() {
+    jQuery(document).on('change', '#tinymce', function() {
         updateDesc();
     });
-    jQuery('#titlewrap #title').live('change', function() {
+    jQuery(document).on('change', '#titlewrap #title', function() {
         updateTitle();
     });
     jQuery('#wpseo_regen_title').click(function() {
@@ -329,48 +344,43 @@ jQuery(document).ready(function(){
         return false;
     });
 
-    jQuery('#wpseo_relatedkeywords').click(function() {
-        if (jQuery('#yoast_wpseo_focuskw').val() == '')
-            return false;
-        jQuery.getJSON("http://boss.yahooapis.com/ysearch/web/v1/"+jQuery('#yoast_wpseo_focuskw').val()+"?"
-            +"appid=NTPCcr7V34Gspq8myEAxcQZs2w.WLOE2a2z.p.1WjSc_u5XQn9xnf8n_N9oOCOs-"
-            +"&lang="+wpseo_lang
-            +"&format=json"
-            +"&count=50"
-            +"&view=keyterms"
-            +"&callback=?",
-            function (data) {
-                var keywords = new Array();
+    var focuskwhelptriggered = false;
+    jQuery(document).on('change', '#yoast_wpseo_focuskw', function() {
+        if ( jQuery('#yoast_wpseo_focuskw').val().search(',') != -1 ) {
+            jQuery("#focuskwhelp").click();
+            focuskwhelptriggered = true;
+        } else if ( focuskwhelptriggered ) {
+            jQuery('#focuskwhelp').qtip("hide");
+            focuskwhelptriggered = false;
+        }
 
-                if ( data['ysearchresponse']['resultset_web'] != undefined ) {
-                    jQuery.each(data['ysearchresponse']['resultset_web'], function(i,item) {
-                        if ( item['keyterms']['terms'] != undefined ) {
-                            jQuery.each(item['keyterms']['terms'], function(i,kw) {
-                                key = kw.toLowerCase();
+        updateSnippet();
+    });
 
-                                if ( key != undefined ) {
-                                    if (keywords[key] == undefined)
-                                        keywords[key] = 1;
-                                    else
-                                        keywords[key]++;
-                                }
-                            });
-                        }
-                    });
 
-                    var result = '<p class="clear">';
-                    for (key in keywords) {
-                        if (keywords[key] > 5)
-                            result += '<span class="wpseo_yahoo_kw">' + key + '</span>';
-                    }
-                    result += '</p>';
-                    jQuery('#wpseo_tag_suggestions').html( result );
-                    jQuery('#related_keywords_heading').show();
-                }
-            });
-        jQuery(this).hide();
-        return false;
+    jQuery(".yoast_help").qtip({
+        position:{
+            corner:{
+                target:'topMiddle',
+                tooltip:'bottomLeft'
+            }
+        },
+        show:{
+            when:{
+                event:'click'
+            }
+        },
+        hide:{
+            when:{
+                event:'click'
+            }
+        },
+        style:{
+            tip:'bottomLeft',
+            name:'blue'
+        }
     });
 
     updateSnippet();
+
 });
