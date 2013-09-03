@@ -2,10 +2,10 @@
 Contributors: woothemes, mattyza
 Tags: widgets, sidebars, widget-areas
 Requires at least: 3.3
-Tested up to: 3.5
-Stable tag: 1.2.1
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to: 3.6.0
+Stable tag: 1.3.1
+License: GPLv3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 WooSidebars adds functionality to display different widgets in a sidebar, according to a context (for example, a specific page or a category).
 
@@ -15,10 +15,9 @@ With WooSidebars, it's possible to change the widgets that display in a sidebar 
 
 [vimeo http://vimeo.com/42980663]
 
-Looking for a helping hand? [View plugin documentation](http://dojodocs.woothemes.com/woosidebars/).
+Looking for a helping hand? [View plugin documentation](http://docs.woothemes.com/documentation/plugins/woosidebars/).
 
-Looking to contribute code to this plugin? [Fork the repository over at GitHub](http://github.com/woothemes/woosidebars/).
-(submit pull requests to the "develop" branch)
+Looking to contribute code to this plugin? [Fork the repository over at GitHub](http://github.com/woothemes/woosidebars/). Please also read the CONTRIBUTING.md file, bundled within this plugin.
 
 == Installation ==
 
@@ -30,9 +29,9 @@ Looking to contribute code to this plugin? [Fork the repository over at GitHub](
 
 = Automatic installation =
 
-Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t even need to leave your web browser. To do an automatic install of WooSidebars, log in to your WordPress admin panel, navigate to the Plugins menu and click Add New. 
+Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t even need to leave your web browser. To do an automatic install of WooSidebars, log in to your WordPress admin panel, navigate to the Plugins menu and click Add New.
 
-In the search field type "WooSidebars" and click Search Plugins. Once you’ve found our widget areas plugin you can view details about it such as the the point release, rating and description. Most importantly of course, you can install it by simply clicking Install Now. After clicking that link you will be asked if you’re sure you want to install the plugin. Click yes and WordPress will automatically complete the installation. 
+In the search field type "WooSidebars" and click Search Plugins. Once you’ve found our widget areas plugin you can view details about it such as the the point release, rating and description. Most importantly of course, you can install it by simply clicking Install Now. After clicking that link you will be asked if you’re sure you want to install the plugin. Click yes and WordPress will automatically complete the installation.
 
 = Manual installation =
 
@@ -48,13 +47,13 @@ Once WooSidebars has been installed and activated, please visit the "Appearance 
 
 = Upgrading =
 
-Automatic updates should work a charm; as always though, ensure you backup your site just in case. 
+Automatic updates should work a charm; as always though, ensure you backup your site just in case.
 
-== Frequently Asked Questions == 
+== Frequently Asked Questions ==
 
 = Where can I find WooSidebars documentation and user guides? =
 
-For further documentation on using WooSidebars, please view the [WooSidebars Documentation](http://dojodocs.woothemes.com/woosidebars/).
+For further documentation on using WooSidebars, please view the [WooSidebars Documentation](http://docs.woothemes.com/documentation/plugins/woosidebars/).
 
 = Will WooSidebars work with my theme? =
 
@@ -72,6 +71,15 @@ Looking to contribute code to this plugin? [Fork the repository over at GitHub](
 
 == Upgrade Notice ==
 
+= 1.3.1 =
+Bug fix to ensure multiple conditions save correctly.
+
+= 1.3.0 =
+Optimisation update.
+
+= 1.2.2 =
+"Widget Areas" menu is now only visible to users who can add/modify widgets.
+
 = 1.2.1 =
 Updated for WordPress 3.5+ compatibility. Adjusted "Advanced" tab logic. Fixed bug where "Template Hierarchy -> Pages" condition wasn't being applied correctly. Dequeue WordPress SEO admin stylesheets from the "Widget Areas" "Add" and "Edit" screens.
 
@@ -80,7 +88,22 @@ Moved to WordPress.org. Woo! Added scope to methods and properties where missing
 
 == Changelog ==
 
-= 1.2.1 = 
+= 1.3.1 =
+* 2013-08-13
+* Bug fix to ensure multiple conditions save correctly.
+
+= 1.3.0 =
+* 2013-08-12
+* Introduces woosidebars_upper_limit filter, used on all database queries, to control scaling.
+* Fixes several PHP notices for "undefined index".
+* Fixes "single" condition, where a small section of logic was missing for determining if the condition applied to the current screen being loaded.
+* Optimises admin-side JavaScript and CSS.
+
+= 1.2.2 =
+* 2013-03-08
+* Changes capability for displaying the menu to "edit_theme_options" in line with the "Widgets" menu capability.
+
+= 1.2.1 =
 * 2013-01-09
 * Updated admin JavaScript for WordPress 3.5+ compatibility. Moved "Advanced" tab outside of the tabs list.
 * Fixed bug with the "Template Hierarchy -> Pages" condition that wasn't applying.
