@@ -25,6 +25,8 @@ jetpack_do_activate (bool)
 class Jetpack {
 	var $xmlrpc_server = null;
 
+	private $xmlrpc_verification = null;
+
 	var $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	var $plugins_to_deactivate = array(
@@ -35,6 +37,7 @@ class Jetpack {
 		'after-the-deadline' => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
 		'contact-form' => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 		'custom-css' => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
+		'random-redirect' => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
 	);
 
 	var $capability_translations = array(
@@ -160,7 +163,7 @@ class Jetpack {
 
 		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
 		// We access the "internal" method here only because the Jetpack object isn't instantiated yet
-		$this->sync->options( __FILE__,
+		$this->sync->options( JETPACK__PLUGIN_DIR . 'jetpack.php',
 			'home',
 			'siteurl',
 			'blogname',
@@ -171,7 +174,7 @@ class Jetpack {
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
-			require_once dirname( __FILE__ ) . '/class.jetpack-xmlrpc-server.php';
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 
 			$this->require_jetpack_authentication();
@@ -180,8 +183,13 @@ class Jetpack {
 				// Hack to preserve $HTTP_RAW_POST_DATA
 				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-				// The actual API methods.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+				$signed = $this->verify_xml_rpc_signature();
+				if ( $signed && ! is_wp_error( $signed ) ) {
+					// The actual API methods.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+				} else {
+					add_filter( 'xmlrpc_methods', '__return_empty_array' );
+				}
 			} else {
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
@@ -441,7 +449,7 @@ class Jetpack {
 		do_action( 'jetpack_modules_loaded' );
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
-		require_once( dirname( __FILE__ ) . '/modules/module-extras.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
 	}
 	
 	/**
@@ -453,7 +461,7 @@ class Jetpack {
 		$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
 
 		if ( function_exists( 'bbpress' ) )
-			$_jetpack_rest_api_compat_includes[] = dirname( __FILE__ ) . '/class.jetpack-bbpress-json-api-compat.php';
+			$_jetpack_rest_api_compat_includes[] = JETPACK__PLUGIN_DIR . 'class.jetpack-bbpress-json-api-compat.php';
 
 		foreach ( $_jetpack_rest_api_compat_includes as $_jetpack_rest_api_compat_include )
 			require_once $_jetpack_rest_api_compat_include;
@@ -522,7 +530,7 @@ class Jetpack {
 		}
 
 		if ( apply_filters( 'jetpack_enable_open_graph', false ) )
-	        require_once dirname( __FILE__ ) . '/functions.opengraph.php';
+	        require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 
 /* Jetpack Options API */
@@ -701,7 +709,7 @@ class Jetpack {
 		static $modules = null;
 
 		if ( !isset( $modules ) ) {
-			$files = Jetpack::glob_php( dirname( __FILE__ ) . '/modules' );
+			$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
 
 			$modules = array();
 
@@ -743,34 +751,25 @@ class Jetpack {
 		$return = array();
 
 		foreach ( Jetpack::get_available_modules( $min_version, $max_version ) as $module ) {
-			// Add special cases here for modules to avoid auto-activation
-			switch ( $module ) {
+			$module_data = Jetpack::get_module( $module );
 
-			// These modules are default off: they change things blog-side
-			case 'comments' :
-			case 'carousel' :
-			case 'minileven':
-			case 'infinite-scroll' :
-			case 'photon' :
-			case 'tiled-gallery' :
-			case 'likes' :
-			case 'wpcc' :
-				break;
-
-			// These modules are default off if we think the site is a private one
-			case 'enhanced-distribution' :
-			case 'json-api' :
-				if ( !Jetpack::get_option( 'public' ) ) {
+			switch ( strtolower( $module_data['auto_activate'] ) ) {
+				case 'yes' :
+					$return[] = $module;
 					break;
-				}
-				// else no break
-			// The rest are default on
-			default :
-				$return[] = $module;
+				case 'public' :
+					if ( Jetpack::get_option( 'public' ) ) {
+						$return[] = $module;
+					}
+					break;
+				case 'no' :
+				default :
+					break;
 			}
+
 		}
 
-		return $return;
+		return apply_filters( 'jetpack_get_default_modules', $return, $min_version, $max_version );
 	}
 
 	/**
@@ -784,7 +783,7 @@ class Jetpack {
 	 * Generate a module's path from its slug.
 	 */
 	public static function get_module_path( $slug ) {
-		return dirname( __FILE__ ) . "/modules/$slug.php";
+		return JETPACK__PLUGIN_DIR . "modules/$slug.php";
 	}
 
 	/**
@@ -802,6 +801,7 @@ class Jetpack {
 			'deactivate'          => 'Deactivate',
 			'free'                => 'Free',
 			'requires_connection' => 'Requires Connection',
+			'auto_activate'       => 'Auto Activate',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -819,6 +819,13 @@ class Jetpack {
 		$mod['deactivate'] = empty( $mod['deactivate'] );
 		$mod['free'] = empty( $mod['free'] );
 		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+
+		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
+			$mod['auto_activate'] = 'No';
+		} else {
+			$mod['auto_activate'] = (string) $mod['auto_activate'];
+		}
+
 		return $mod;
 	}
 
@@ -1104,7 +1111,7 @@ p {
 <?php
 		if ( $deactivate ) {
 			$plugins = get_option( 'active_plugins' );
-			$jetpack = plugin_basename( __FILE__ );
+			$jetpack = plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' );
 			$update = false;
 			foreach ( $plugins as $i => $plugin ) {
 				if ( $plugin === $jetpack ) {
@@ -1276,7 +1283,7 @@ p {
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_head', array( $this, 'admin_menu_css' ) );
-		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
@@ -1595,12 +1602,12 @@ p {
 	function admin_menu_css() { ?>
 		<style type="text/css" id="jetpack-menu-css">
 			#toplevel_page_jetpack .wp-menu-image {
-				background: url( <?php echo plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/menuicon-sprite.png' ) ?> ) 0 90% no-repeat;
+				background: url( <?php echo plugins_url( '_inc/images/menuicon-sprite.png', __FILE__ ) ?> ) 0 90% no-repeat;
 			}
 			/* Retina Jetpack Menu Icon */
 			@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
 				#toplevel_page_jetpack .wp-menu-image {
-					background: url( <?php echo plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/menuicon-sprite-2x.png' ) ?> ) 0 90% no-repeat;
+					background: url( <?php echo plugins_url( '_inc/images/menuicon-sprite-2x.png', __FILE__ ) ?> ) 0 90% no-repeat;
 					background-size:30px 64px;
 				}
 			}
@@ -1637,12 +1644,12 @@ p {
 
 	function admin_styles() {
 		global $wp_styles;
-		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20121016' );
+		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-js', plugins_url( basename( dirname( __FILE__ ) ) ) . '/_inc/jetpack.js', array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jetpack.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script( 'jetpack-js', 'jetpackL10n', array(
 				'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
 				'ays_unlink'     => "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?",
@@ -2347,6 +2354,7 @@ p {
 				'user_email' => $user->user_email,
 				'user_login' => $user->user_login,
 				'is_active' => Jetpack::is_active(),
+				'jp_version' => JETPACK__VERSION,
 			) );
 
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
@@ -2372,10 +2380,10 @@ p {
 	}
 
 	function dismiss_jetpack_notice() {
-		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && ! is_plugin_active_for_network( plugin_basename( __FILE__ ) ) ) {
+		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			deactivate_plugins( plugin_basename( __FILE__ ), false, false );
+			deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
 
 			wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
 			exit;
@@ -2680,7 +2688,7 @@ p {
 	}
 
 	function admin_screen_list_modules() {
-		require_once dirname( __FILE__ ) . '/modules/module-info.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/module-info.php';
 		$jetpack_connected = true;
 		if ( !Jetpack::is_active() )
 			$jetpack_connected = false;
@@ -3089,20 +3097,17 @@ p {
 	 */
 	public static function load_xml_rpc_client() {
 		require_once ABSPATH . WPINC . '/class-IXR.php';
-		require_once dirname( __FILE__ ) . '/class.jetpack-ixr-client.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
-	/**
-	 * Authenticates XML-RPC and other requests from the Jetpack Server
-	 */
-	function authenticate_jetpack( $user, $username, $password ) {
-		if ( is_a( $user, 'WP_User' ) ) {
-			return $user;
+	function verify_xml_rpc_signature() {
+		if ( $this->xmlrpc_verification ) {
+			return $this->xmlrpc_verification;
 		}
 
 		// It's not for us
 		if ( !isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
-			return $user;
+			return false;
 		}
 
 		@list( $token_key, $version, $user_id ) = explode( ':', $_GET['token'] );
@@ -3110,22 +3115,36 @@ p {
 			empty( $token_key )
 		||
 			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
-		||
-			empty( $user_id ) || !ctype_digit( $user_id ) || !get_userdata( $user_id ) // only handle user_tokens for now, not blog_tokens
 		) {
-			return $user;
+			return false;
+		}
+
+		if ( '0' === $user_id ) {
+			$token_type = 'blog';
+			$user_id = 0;
+		} else {
+			$token_type = 'user';
+			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
+				return false;
+			}
+			$user_id = (int) $user_id;
+
+			$user = new WP_User( $user_id );
+			if ( ! $user || ! $user->exists() ) {
+				return false;
+			}
 		}
 
 		$token = Jetpack_Data::get_access_token( $user_id );
 		if ( !$token ) {
-			return $user;
+			return false;
 		}
 
 		if ( 0 !== strpos( $token->secret, "$token_key." ) ) {
-			return $user;
+			return false;
 		}
 
-		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack::get_option( 'time_diff' ) );
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
@@ -3157,23 +3176,53 @@ p {
 		) );
 
 		if ( !$signature ) {
-			return $user;
+			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
 		} else if ( $signature !== $_GET['signature'] ) {
-			return $user;
+			return false;
 		}
 
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
 		if ( !$this->add_nonce( $timestamp, $nonce ) ) {
+			return false;
+		}
+
+		$this->xmlrpc_verification = array(
+			'type'    => $token_type,
+			'user_id' => $token->external_user_id,
+		);
+
+		return $this->xmlrpc_verification;
+	}
+
+	/**
+	 * Authenticates XML-RPC and other requests from the Jetpack Server
+	 */
+	function authenticate_jetpack( $user, $username, $password ) {
+		if ( is_a( $user, 'WP_User' ) ) {
+			return $user;
+		}
+
+		$token_details = $this->verify_xml_rpc_signature();
+
+		if ( ! $token_details || is_wp_error( $token_details ) ) {
+			return $user;
+		}
+
+		if ( 'user' !== $token_details['type'] ) {
+			return $user;
+		}
+
+		if ( ! $token_details['user_id'] ) {
 			return $user;
 		}
 
 		nocache_headers();
 
-		return new WP_User( $token->external_user_id );
+		return new WP_User( $token_details['user_id'] );
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
@@ -3463,7 +3512,7 @@ p {
 
 	// Verifies the request by checking the signature
 	function verify_json_api_authorization_request() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
 		$token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		if ( !$token || empty( $token->secret ) ) {
@@ -3547,7 +3596,7 @@ p {
 	 * Get $content_width, but with a <s>twist</s> filter.
 	 */
 	public static function get_content_width() {
-		$content_width = isset( $GLOBALS['content_width'] ) ? $GLOBALS['content_width'] : 0;
+		$content_width = isset( $GLOBALS['content_width'] ) ? $GLOBALS['content_width'] : false;
 		return apply_filters( 'jetpack_content_width', $content_width );
 	}
 
