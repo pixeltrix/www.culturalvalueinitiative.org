@@ -2,8 +2,8 @@
 Contributors: woothemes, mattyza, warrenholmes, cobusbester, jeffikus
 Tags: woodojo, widget, shortlinks, twitter, admin
 Requires at least: 3.3
-Tested up to: 3.5.0
-Stable tag: 1.5.0
+Tested up to: 3.6.1
+Stable tag: 1.5.4
 
 WooDojo is a powerful collection of WooThemes features, to enhance your website with the features you need.
 

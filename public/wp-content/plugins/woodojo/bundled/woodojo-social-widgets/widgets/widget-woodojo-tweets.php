@@ -1,6 +1,6 @@
 <?php
 if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename( $_SERVER['SCRIPT_FILENAME'] ) ) {
-    die ( 'Please do not load this screen directly. Thanks!' );
+	die ( 'Please do not load this screen directly. Thanks!' );
 }
 
 /**
@@ -20,9 +20,9 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * protected $woo_widget_description
  * protected $woo_widget_idbase
  * protected $woo_widget_title
- * 
+ *
  * protected $transient_expire_time
- * 
+ *
  * - __construct()
  * - widget()
  * - update()
@@ -45,7 +45,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 	/**
 	 * __construct function.
-	 * 
+	 *
 	 * @access public
 	 * @uses WooDojo
 	 * @return void
@@ -56,7 +56,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		$this->woo_widget_description = __( 'This is a WooDojo bundled tweets widget.', 'woodojo' );
 		$this->woo_widget_idbase = 'woodojo_tweets';
 		$this->woo_widget_title = __( 'WooDojo - Tweets', 'woodojo' );
-		
+
 		$this->transient_expire_time = 60 * 60; // 1 hour.
 
 		/* Widget settings. */
@@ -71,7 +71,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 	/**
 	 * widget function.
-	 * 
+	 *
 	 * @access public
 	 * @param array $args
 	 * @param array $instance
@@ -82,7 +82,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		if ( ! isset( $instance['twitter_handle'] ) || ( $instance['twitter_handle'] == '' ) ) { return; }
 
 		extract( $args, EXTR_SKIP );
-		
+
 		/* Our variables from the widget settings. */
 		$title = apply_filters('widget_title', $instance['title'], $instance, $this->id_base );
 
@@ -91,25 +91,25 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 		/* Display the widget title if one was input (before and after defined by themes). */
 		if ( $title ) {
-		
+
 			echo $before_title . $title . $after_title;
-		
+
 		} // End IF Statement
-		
+
 		/* Widget content. */
-		
+
 		// Add actions for plugins/themes to hook onto.
 		do_action( $this->woo_widget_cssclass . '_top' );
-		
+
 		// Load widget content here.
 		$html = '';
-		
+
 		$args = array(
-					'username' => sanitize_user( strip_tags( $instance['twitter_handle'] ) ), 
-					'limit' => intval( $instance['limit'] ), 
-					'include_retweets' => (bool)$instance['include_retweets'], 
+					'username' => sanitize_user( strip_tags( $instance['twitter_handle'] ) ),
+					'limit' => intval( $instance['limit'] ),
+					'include_retweets' => (bool)$instance['include_retweets'],
 					'exclude_replies' => (bool)$instance['exclude_replies']
-					);
+				);
 
 		$tweets = $this->get_stored_data( $args );
 
@@ -149,7 +149,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		}
 
 		echo $html; // If using the $html variable to store the output, you need this. ;)
-		
+
 		// Add actions for plugins/themes to hook onto.
 		do_action( $this->woo_widget_cssclass . '_bottom' );
 
@@ -159,7 +159,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 	/**
 	 * update function.
-	 * 
+	 *
 	 * @access public
 	 * @param array $new_instance
 	 * @param array $old_instance
@@ -173,7 +173,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 		/* Strip tags for the Twitter username, and sanitize it as if it were a WordPress username. */
 		$instance['twitter_handle'] = strip_tags( sanitize_user( $new_instance['twitter_handle'] ) );
-		
+
 		/* Escape the text string and convert to an integer. */
 		$instance['limit'] = intval( strip_tags( $new_instance['limit'] ) );
 
@@ -182,10 +182,10 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		$instance['exclude_replies'] = (bool) esc_attr( $new_instance['exclude_replies'] );
 		$instance['link_mentions'] = (bool) esc_attr( $new_instance['link_mentions'] );
 		$instance['include_follow_link'] = (bool) esc_attr( $new_instance['include_follow_link'] );
-		
+
 		// Allow child themes/plugins to act here.
 		$instance = apply_filters( $this->woo_widget_idbase . '_widget_save', $instance, $new_instance, $this );
-		
+
 		// Clear the transient, forcing an update on next frontend page load.
 		delete_transient( $this->id . '-tweets' );
 
@@ -193,29 +193,39 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	} // End update()
 
    /**
-    * form function.
-    * 
-    * @access public
-    * @param array $instance
-    * @return void
-    */
-   public function form ( $instance ) {
+	* form function.
+	*
+	* @access public
+	* @param array $instance
+	* @return void
+	*/
+	public function form ( $instance ) {
+		global $WooDojo_Social_Widgets;
 		/* Set up some default widget settings. */
 		/* Make sure all keys are added here, even with empty string values. */
 		$defaults = array(
-						'title' => __( 'Tweets', 'woodojo' ), 
-						'twitter_handle' => '', 
-						'limit' => 5, 
-						'include_retweets' => 0, 
-						'exclude_replies' => 0, 
-						'link_mentions' => 0, 
+						'title' => __( 'Tweets', 'woodojo' ),
+						'twitter_handle' => '',
+						'limit' => 5,
+						'include_retweets' => 0,
+						'exclude_replies' => 0,
+						'link_mentions' => 0,
 						'include_follow_link' => 1
 					);
-		
+
 		// Allow child themes/plugins to filter here.
 		$defaults = apply_filters( $this->woo_widget_idbase . '_widget_defaults', $defaults, $this );
-		
+
 		$instance = wp_parse_args( (array) $instance, $defaults );
+
+
+		$api_settings = $WooDojo_Social_Widgets->settings_screen->get_settings();
+		if ( ! isset( $api_settings['consumer_key'] ) || $api_settings['consumer_key'] == '' || ! isset( $api_settings['consumer_secret'] ) || $api_settings['consumer_secret'] == '' || ! isset( $api_settings['access_key'] ) || $api_settings['access_key'] == '' || ! isset( $api_settings['access_secret'] ) || $api_settings['access_secret'] == '' ) {
+			$url = add_query_arg( array( 'page' => $WooDojo_Social_Widgets->page_slug ), admin_url( 'admin.php' ) );
+?>
+		<div style="background-color: #ffebe8; border-color: #c00;margin: 5px 0 15px;padding: 0 .6em;-webkit-border-radius: 3px;border-radius: 3px;border-width: 1px;border-style: solid;"><p style="margin: .5em 0;padding: 2px;"><strong><?php echo sprintf( __( 'Please set up your <a href="%s">Twitter API Settings</a>', 'woodojo' ), $url ); ?></strong></p></div>
+<?php
+		}
 ?>
 		<!-- Widget Title: Text Input -->
 		<p>
@@ -235,25 +245,25 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 		<!-- Widget Include Retweets: Checkbox Input -->
 		<p>
 			<input id="<?php echo $this->get_field_id( 'include_retweets' ); ?>" name="<?php echo $this->get_field_name( 'include_retweets' ); ?>" type="checkbox"<?php checked( $instance['include_retweets'], 1 ); ?> />
-        	<label for="<?php echo $this->get_field_id( 'include_retweets' ); ?>"><?php _e( 'Include Retweets', 'woodojo' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'include_retweets' ); ?>"><?php _e( 'Include Retweets', 'woodojo' ); ?></label>
 		</p>
 		<!-- Widget Exclude Replies: Checkbox Input -->
 		<p>
 			<input id="<?php echo $this->get_field_id( 'exclude_replies' ); ?>" name="<?php echo $this->get_field_name( 'exclude_replies' ); ?>" type="checkbox"<?php checked( $instance['exclude_replies'], 1 ); ?> />
-        	<label for="<?php echo $this->get_field_id( 'exclude_replies' ); ?>"><?php _e( 'Exclude Replies', 'woodojo' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'exclude_replies' ); ?>"><?php _e( 'Exclude Replies', 'woodojo' ); ?></label>
 		</p>
 		<!-- Widget Link Mentions: Checkbox Input -->
 		<p>
 			<input id="<?php echo $this->get_field_id( 'link_mentions' ); ?>" name="<?php echo $this->get_field_name( 'link_mentions' ); ?>" type="checkbox"<?php checked( $instance['link_mentions'], 1 ); ?> />
-        	<label for="<?php echo $this->get_field_id( 'link_mentions' ); ?>"><?php _e( 'Link @mentions', 'woodojo' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'link_mentions' ); ?>"><?php _e( 'Link @mentions', 'woodojo' ); ?></label>
 		</p>
 		<!-- Widget Include Follow Link: Checkbox Input -->
 		<p>
 			<input id="<?php echo $this->get_field_id( 'include_follow_link' ); ?>" name="<?php echo $this->get_field_name( 'include_follow_link' ); ?>" type="checkbox"<?php checked( $instance['include_follow_link'], 1 ); ?> />
-        	<label for="<?php echo $this->get_field_id( 'include_follow_link' ); ?>"><?php _e( 'Include Follow Link', 'woodojo' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'include_follow_link' ); ?>"><?php _e( 'Include Follow Link', 'woodojo' ); ?></label>
 		</p>
 <?php
-		
+
 		// Allow child themes/plugins to act here.
 		do_action( $this->woo_widget_idbase . '_widget_settings', $instance, $this );
 
@@ -266,7 +276,6 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	public function get_stored_data ( $args ) {
 		$data = array();
 		$transient_key = $this->id . '-tweets';
-
 		if ( false === ( $data = get_transient( $transient_key ) ) ) {
 			$response = $this->request_tweets( $args );
 
@@ -288,39 +297,25 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	 * @return array
 	 */
 	public function request_tweets ( $args ) {
-
-		if( !isset( $args['username']) || $args['username'] == '' ){
+		global $WooDojo_Social_Widgets;
+		$settings = $WooDojo_Social_Widgets->settings_screen->get_settings();
+		if( !isset( $args['username'] ) || $args['username'] == '' || !isset( $settings['consumer_key'] ) || $settings['consumer_key'] == '' || !isset( $settings['consumer_secret'] ) || $settings['consumer_secret'] == '' || !isset( $settings['access_key'] ) ||$settings['access_key'] == '' || !isset( $settings['access_secret'] ) || $settings['access_secret'] == ''){
 			return array();
 		}
+		require 'twitteroauth/twitteroauth.php';
+		$connection = new TwitterOAuth( $settings['consumer_key'] , $settings['consumer_secret'], $settings['access_key'], $settings['access_secret'] );
+		$params = array();
+		$params['screen_name'] = strip_tags( sanitize_user( $args['username'] ) );
+		if ( $args['limit'] != '' ) { $params['count'] = intval( $args['limit'] ); }
+		if ( $args['include_retweets'] == true ) { $params['include_rts'] = intval( $args['include_retweets'] ); }
+		if ( $args['exclude_replies'] == true ) { $params['exclude_replies'] = intval( $args['exclude_replies'] ); }
+		$response = $connection->get( 'statuses/user_timeline', $params );
 
 		$data = array();
-		
-		$url = 'https://api.twitter.com/1/statuses/user_timeline.json';
-
-		$url = add_query_arg( array( 'id' => $args['username'] ), $url );
-
-		if ( $args['limit'] != '' ) { $url = add_query_arg( array( 'count' => intval( $args['limit'] ) ) ,$url ); }
-		if ( $args['include_retweets'] == true ) { $url = add_query_arg( array( 'include_rts' => 1 ) ,$url ); }
-		if ( $args['exclude_replies'] == true ) { $url = add_query_arg( array( 'exclude_replies' => 1 ), $url ); }
-
-		$response = wp_remote_get( $url, array(
-			'method' => 'GET',
-			'timeout' => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking' => true,
-			'headers' => array(),
-			'body' => array(),
-			'cookies' => array(), 
-			'sslverify' => false
-		    )
-		);
-
 		if( is_wp_error( $response ) ) {
 		   $data = array();
 		} else {
-			$response = json_decode( $response['body'] );
-			if ( isset( $response->error ) ) {
+			if ( isset( $response->errors ) ) {
 				$data = array();
 			} else if ( isset( $response[0]->user->id ) ) {
 				$data = $response;
@@ -332,7 +327,7 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 
 	/**
 	 * enqueue_styles function.
-	 * 
+	 *
 	 * @access public
 	 * @since 1.0.1
 	 * @return void
@@ -348,47 +343,47 @@ class WooDojo_Widget_Tweets extends WP_Widget {
 	 * @return array
 	 */
 	private function find_mentions ( $str ) {
-	    $pattern = "/@([A-Za-z0-9_]+)/";
-	    $str = trim( $str );
-	    $all_names = array();
-	    preg_match_all( $pattern, $str, $matches );
+		$pattern = "/@([A-Za-z0-9_]+)/";
+		$str = trim( $str );
+		$all_names = array();
+		preg_match_all( $pattern, $str, $matches );
 
-	    if( $matches ) {
-	        $counter = 0;
-	        $count = 0;
-	        $name_list = array();
-	        if ( is_array( $matches[1] ) ) {
-	        	foreach ( $matches[1] as $k => $v ) {
-	        		$name_list[$counter++] = $v;
-	        	}
-	        } else {
-	        	$name_list[$counter++] = $matches[1];
-	        }
-	 
-	        do {
-	            if ( isset( $matches[2] ) ) {
-	            	preg_match( $pattern, $matches[2], $more_matches );
-		            $name_list[$counter++]  = $more_matches[1];
-		            $count = count($more_matches);
-		            $matches[2]=$more_matches[($count-1)];
-		            $more_matches = "";
-		        }
-	        } while( $count>=3 );
-	 
-	        if( ! empty( $name_list ) ) {
-	            $all_names = array();
-	            $i = 0;
-	            foreach ( $name_list as $key => $value ) {
-	                if (!is_null($value) && (!in_array($value, $all_names))) {
-	                    $all_names[$i] = $value;
-	                    $i++;
-	                }
-	            }
-	        }
-	        return $all_names;
-	    } else {
-	    	return false;
-	    }
+		if( $matches ) {
+			$counter = 0;
+			$count = 0;
+			$name_list = array();
+			if ( is_array( $matches[1] ) ) {
+				foreach ( $matches[1] as $k => $v ) {
+					$name_list[$counter++] = $v;
+				}
+			} else {
+				$name_list[$counter++] = $matches[1];
+			}
+
+			do {
+				if ( isset( $matches[2] ) ) {
+					preg_match( $pattern, $matches[2], $more_matches );
+					$name_list[$counter++]  = $more_matches[1];
+					$count = count($more_matches);
+					$matches[2]=$more_matches[($count-1)];
+					$more_matches = "";
+				}
+			} while( $count>=3 );
+
+			if( ! empty( $name_list ) ) {
+				$all_names = array();
+				$i = 0;
+				foreach ( $name_list as $key => $value ) {
+					if (!is_null($value) && (!in_array($value, $all_names))) {
+						$all_names[$i] = $value;
+						$i++;
+					}
+				}
+			}
+			return $all_names;
+		} else {
+			return false;
+		}
 	} // End find_mentions()
 } // End Class
 ?>

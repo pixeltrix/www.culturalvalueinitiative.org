@@ -1,8 +1,21 @@
 *** WooDojo Changelog ***
+
+2013.09.13 - version 1.5.4
+* /bundled/woodojo-social-widgets/widgets/widget-woodojo-twitter-profile.php - Twitter API 1.1 integration
+* /bundled/woodojo-custom-code/widgets/classes/settings.class.php - Adds logic to strip slashes in CSS on output in the textarea.
+* /bundled/woodojo-custom-code/widgets/classes/woodojo-custom-code.class.php - Adds logic to strip slashes in CSS on output.
+
+2013.06.13 - version 1.5.3
+* /bundled/woodojo-social-widgets/classes/settings.class.php - ADDED
+* /bundled/woodojo-social-widgets/classes/woodojo-social-widgets.class.php - ADDED
+* /bundled/woodojo-social-widgets/widgets/twitteroauth/twitteroauth.php - ADDED
+* /bundled/woodojo-social-widgets/widgets/twitteroauth/OAuth.php - ADDED
+* /bundled/woodojo-social-widgets/widgets/widget-woodojo-tweets.php - Twitter API 1.1 integration
+
 2013.02.05 - version 1.5.2
  * /bundled/woodojo-tab-grouping/classes/class-woodojo-tab-grouping.php - Code Standards. Correctly hook form actions. Fix reload location on edit. Fix nonce name on delete. Correctly handle slug name changes on edit. Make sure the admin styling is loading correctly on this screen, to display the correct screen icon.
  * /bundled/woodojo-tab-grouping/classes/class-list-table.php - Correct nonce name for edit.
- 
+
 2013.01.31 - version 1.5.1
  * /classes/settings-api.class.php - Added filter for select form input.
 

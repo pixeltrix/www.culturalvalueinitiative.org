@@ -20,9 +20,9 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * var $woo_widget_description
  * var $woo_widget_idbase
  * var $woo_widget_title
- * 
+ *
  * var $transient_expire_time
- * 
+ *
  * - __construct()
  * - widget()
  * - update()
@@ -44,7 +44,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 
 	/**
 	 * __construct function.
-	 * 
+	 *
 	 * @access public
 	 * @uses WooDojo
 	 * @return void
@@ -57,7 +57,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		$this->woo_widget_description = __( 'This is a WooDojo bundled Twitter profile widget.', 'woodojo' );
 		$this->woo_widget_idbase = 'woodojo_twitterprofile';
 		$this->woo_widget_title = __('WooDojo - Twitter Profile', 'woodojo' );
-		
+
 		$this->transient_expire_time = 60 * 60 * 24 * 7; // 1 week.
 
 		/* Setup the assets URL in relation to WooDojo. */
@@ -78,7 +78,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 
 	/**
 	 * widget function.
-	 * 
+	 *
 	 * @access public
 	 * @param array $args
 	 * @param array $instance
@@ -89,7 +89,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		if ( ! isset( $instance['twitter_handle'] ) || ( $instance['twitter_handle'] == '' ) ) { return; }
 
 		extract( $args, EXTR_SKIP );
-		
+
 		/* Our variables from the widget settings. */
 		$title = apply_filters('widget_title', $instance['title'], $instance, $this->id_base );
 
@@ -98,19 +98,19 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 
 		/* Display the widget title if one was input (before and after defined by themes). */
 		if ( $title ) {
-		
+
 			echo $before_title . $title . $after_title;
-		
+
 		} // End IF Statement
-		
+
 		/* Widget content. */
-		
+
 		// Add actions for plugins/themes to hook onto.
 		do_action( $this->woo_widget_cssclass . '_top' );
-		
+
 		// Load widget content here.
 		$html = '';
-		
+
 		$args = array(
 					'username' => $instance['twitter_handle']
 					);
@@ -121,8 +121,8 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		$has_stats = false;
 
 		if (
-			( $instance['display_friends_count'] == true && isset( $data->friends_count ) ) || 
-			( $instance['display_follower_count'] == true && isset( $data->followers_count ) ) || 
+			( $instance['display_friends_count'] == true && isset( $data->friends_count ) ) ||
+			( $instance['display_follower_count'] == true && isset( $data->followers_count ) ) ||
 			( $instance['display_status_count'] == true && isset( $data->statuses_count ) )
 		   ) {
 			$has_stats = true;
@@ -167,7 +167,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		if ( $instance['display_description'] == true || $instance['display_location'] == true ) {
 			$html .= '</p>' . "\n";
 		}
-		
+
 		if ( $has_stats == true ) {
 			$html .= '<div class="stats">' . "\n";
 		}
@@ -183,7 +183,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		if ( $instance['display_status_count'] == true && isset( $data->statuses_count ) ) {
 			$html .= '<p class="statuses stat"><span class="number">' . $data->statuses_count . '</span> <span class="stat-label">' . __( 'tweets', 'woodojo' ) . '</span></p>' . "\n";
 		}
-		
+
 		if ( $has_stats == true ) {
 			$html .= '</div>' . "\n";
 		}
@@ -208,7 +208,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 
 	/**
 	 * update function.
-	 * 
+	 *
 	 * @access public
 	 * @param array $new_instance
 	 * @param array $old_instance
@@ -232,10 +232,10 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		foreach ( $checkboxes as $k => $v ) {
 			$instance[$v] = (bool) esc_attr( $new_instance[$v] );
 		}
-		
+
 		// Allow child themes/plugins to act here.
 		$instance = apply_filters( $this->woo_widget_idbase . '_widget_save', $instance, $new_instance, $this );
-		
+
 		// Clear the transient, forcing an update on next frontend page load.
 		delete_transient( $this->id . '-profile' );
 
@@ -244,36 +244,45 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 
    /**
     * form function.
-    * 
+    *
     * @access public
     * @param array $instance
     * @return void
     */
    function form ( $instance ) {
+   		global $WooDojo_Social_Widgets;
 		/* Set up some default widget settings. */
 		/* Make sure all keys are added here, even with empty string values. */
 		$defaults = array(
-						'title' => __( 'Twitter Profile', 'woodojo' ), 
-						'twitter_handle' => '', 
-						'display_avatar' => 1, 
-						'display_name' => 1, 
-						'display_screen_name' => 1, 
-						'display_description' => 1, 
-						'display_location' => 1, 
-						'display_status_count' => 1, 
-						'display_follower_count' => 1, 
-						'display_friends_count' => 1, 
-						'display_tweeting_since' => 1, 
-						'avatar_alignment' => 'left', 
+						'title' => __( 'Twitter Profile', 'woodojo' ),
+						'twitter_handle' => '',
+						'display_avatar' => 1,
+						'display_name' => 1,
+						'display_screen_name' => 1,
+						'display_description' => 1,
+						'display_location' => 1,
+						'display_status_count' => 1,
+						'display_follower_count' => 1,
+						'display_friends_count' => 1,
+						'display_tweeting_since' => 1,
+						'avatar_alignment' => 'left',
 						'include_follow_link' => 1
 					);
-		
+
 		// Allow child themes/plugins to filter here.
 		$defaults = apply_filters( $this->woo_widget_idbase . '_widget_defaults', $defaults, $this );
-		
+
 		$instance = wp_parse_args( (array) $instance, $defaults );
 
 		$checkboxes = $this->get_checkbox_settings();
+
+		$api_settings = $WooDojo_Social_Widgets->settings_screen->get_settings();
+		if ( ! isset( $api_settings['consumer_key'] ) || $api_settings['consumer_key'] == '' || ! isset( $api_settings['consumer_secret'] ) || $api_settings['consumer_secret'] == '' || ! isset( $api_settings['access_key'] ) || $api_settings['access_key'] == '' || ! isset( $api_settings['access_secret'] ) || $api_settings['access_secret'] == '' ) {
+			$url = add_query_arg( array( 'page' => $WooDojo_Social_Widgets->page_slug ), admin_url( 'admin.php' ) );
+?>
+		<div style="background-color: #ffebe8; border-color: #c00;margin: 5px 0 15px;padding: 0 .6em;-webkit-border-radius: 3px;border-radius: 3px;border-width: 1px;border-style: solid;"><p style="margin: .5em 0;padding: 2px;"><strong><?php echo sprintf( __( 'Please set up your <a href="%s">Twitter API Settings</a>', 'woodojo' ), $url ); ?></strong></p></div>
+<?php
+		}
 ?>
 		<!-- Widget Title: Text Input -->
 		<p>
@@ -291,7 +300,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 			<select name="<?php echo $this->get_field_name( 'avatar_alignment' ); ?>" class="widefat" id="<?php echo $this->get_field_id( 'avatar_alignment' ); ?>">
 				<option value="left"<?php selected( $instance['avatar_alignment'], 'left' ); ?>><?php _e( 'Left', 'woodojo' ); ?></option>
 				<option value="centre"<?php selected( $instance['avatar_alignment'], 'centre' ); ?>><?php _e( 'Centre', 'woodojo' ); ?></option>
-				<option value="right"<?php selected( $instance['avatar_alignment'], 'right' ); ?>><?php _e( 'Right', 'woodojo' ); ?></option>         
+				<option value="right"<?php selected( $instance['avatar_alignment'], 'right' ); ?>><?php _e( 'Right', 'woodojo' ); ?></option>
 			</select>
 		</p>
 		<?php foreach ( $checkboxes as $k => $v ) { ?>
@@ -302,7 +311,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 		</p>
 		<?php } ?>
 <?php
-		
+
 		// Allow child themes/plugins to act here.
 		do_action( $this->woo_widget_idbase . '_widget_settings', $instance, $this );
 
@@ -315,7 +324,7 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 	public function get_stored_data ( $args ) {
 		$data = array();
 		$transient_key = $this->id . '-profile';
-		
+
 		if ( false === ( $data = get_transient( $transient_key ) ) ) {
 			$response = $this->request_profile_data( $args );
 
@@ -334,28 +343,21 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 	 * @return array
 	 */
 	public function request_profile_data ( $args ) {
+		global $WooDojo_Social_Widgets;
 		$data = array();
-		
-		$url = 'https://twitter.com/users/' . urlencode( $args['username'] ) . '.json';
-
-		$response = wp_remote_get( $url, array(
-			'method' => 'GET',
-			'timeout' => 45,
-			'redirection' => 5,
-			'httpversion' => '1.0',
-			'blocking' => true,
-			'headers' => array(),
-			'body' => array(),
-			'cookies' => array(), 
-			'sslverify' => false
-		    )
-		);
+		$settings = $WooDojo_Social_Widgets->settings_screen->get_settings();
+		if( !isset( $args['username'] ) || $args['username'] == '' || !isset( $settings['consumer_key'] ) || $settings['consumer_key'] == '' || !isset( $settings['consumer_secret'] ) || $settings['consumer_secret'] == '' || !isset( $settings['access_key'] ) ||$settings['access_key'] == '' || !isset( $settings['access_secret'] ) || $settings['access_secret'] == ''){
+			return array();
+		}
+		require 'twitteroauth/twitteroauth.php';
+		$connection = new TwitterOAuth( $settings['consumer_key'] , $settings['consumer_secret'], $settings['access_key'], $settings['access_secret'] );
+		$params = array();
+		$params['screen_name'] = strip_tags( sanitize_user( $args['username'] ) );
+		$response = $connection->get( 'users/show', $params );
 
 		if( is_wp_error( $response ) ) {
 		   $data = array();
 		} else {
-		   $response = json_decode( $response['body'] );
-
 			if ( isset( $response->id ) ) {
 				$data = $response;
 			}
@@ -370,22 +372,22 @@ class WooDojo_Widget_TwitterProfile extends WP_Widget {
 	 */
 	private function get_checkbox_settings () {
 		return array(
-					'display_avatar' => __( 'Display Avatar', 'woodojo' ), 
-					'display_name' => __( 'Display Name', 'woodojo' ), 
-					'display_screen_name' => __( 'Display Screen Name', 'woodojo' ), 
-					'display_description' => __( 'Display Description', 'woodojo' ), 
-					'display_location' => __( 'Display Location', 'woodojo' ), 
-					'display_status_count' => __( 'Display Tweet Count', 'woodojo' ), 
-					'display_follower_count' => __( 'Display Followers Count', 'woodojo' ), 
-					'display_friends_count' => __( 'Display Friends Count', 'woodojo' ), 
-					'display_tweeting_since' => __( 'Display "Tweeting Since"', 'woodojo' ), 
+					'display_avatar' => __( 'Display Avatar', 'woodojo' ),
+					'display_name' => __( 'Display Name', 'woodojo' ),
+					'display_screen_name' => __( 'Display Screen Name', 'woodojo' ),
+					'display_description' => __( 'Display Description', 'woodojo' ),
+					'display_location' => __( 'Display Location', 'woodojo' ),
+					'display_status_count' => __( 'Display Tweet Count', 'woodojo' ),
+					'display_follower_count' => __( 'Display Followers Count', 'woodojo' ),
+					'display_friends_count' => __( 'Display Friends Count', 'woodojo' ),
+					'display_tweeting_since' => __( 'Display "Tweeting Since"', 'woodojo' ),
 					'include_follow_link' => __( 'Include "Follow" Link', 'woodojo' )
 					);
 	} // End get_checkbox_settings()
 
 	/**
 	 * enqueue_styles function.
-	 * 
+	 *
 	 * @access public
 	 * @since 1.0.1
 	 * @return void

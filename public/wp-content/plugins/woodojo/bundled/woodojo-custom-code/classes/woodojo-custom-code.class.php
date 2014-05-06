@@ -15,11 +15,11 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * @since 1.0.0
  *
  * TABLE OF CONTENTS
- * 
+ *
  * var $token
  * var $settings_screen
  * var $settings
- * 
+ *
  * - __construct()
  * - load_settings_screen()
  * - enqueue_custom_css()
@@ -27,15 +27,15 @@ if ( ! empty( $_SERVER['SCRIPT_FILENAME'] ) && basename( __FILE__ ) == basename(
  * - output_custom_html()
  */
 class WooDojo_CustomCode {
-	
+
 	/* Variable Declarations */
 	var $token;
 	var $settings_screen;
 	var $settings;
-	
+
 	/**
 	 * __construct function.
-	 * 
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -49,27 +49,27 @@ class WooDojo_CustomCode {
 		$this->settings = $this->settings_screen->get_settings();
 
 		/* Output custom CSS optionally */
-		if ( $this->settings['custom-css-enable'] == true && $this->settings['custom-css-code'] != '' ) {
-			if ( isset( $_GET[$this->token] ) && ( $_GET[$this->token] == 'css' ) ) {
+		if ( true == $this->settings['custom-css-enable']  && '' != $this->settings['custom-css-code'] ) {
+			if ( isset( $_GET[$this->token] ) && ( 'css' == $_GET[$this->token] ) ) {
 				add_action( 'template_redirect', array( &$this, 'output_custom_css' ), 0 );
 			}
 			add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_custom_css' ) );
 		}
 
 		/* Output custom HTML optionally */
-		if ( $this->settings['custom-html-enable'] == true ) {
-			if ( $this->settings['custom-html-code-head'] != '' ) {
+		if ( true == $this->settings['custom-html-enable'] ) {
+			if ( '' != $this->settings['custom-html-code-head'] ) {
 				add_action( 'wp_head', array( &$this, 'output_custom_html' ), 100 );
 			}
-			if ( $this->settings['custom-html-code-footer'] != '' ) {
+			if ( '' != $this->settings['custom-html-code-footer'] ) {
 				add_action( 'wp_footer', array( &$this, 'output_custom_html' ), 100 );
 			}
 		}
 	} // End __construct()
-	
+
 	/**
 	 * load_settings_screen function.
-	 * 
+	 *
 	 * @access public
 	 * @since 1.0.0
 	 * @return void
@@ -78,7 +78,7 @@ class WooDojo_CustomCode {
 		/* Settings Screen */
 		require_once( 'settings.class.php' );
 		$this->settings_screen = new WooDojo_CustomCode_Settings();
-		
+
 		/* Setup Data */
 		$this->settings_screen->token = $this->token;
 		if ( is_admin() ) {
@@ -96,19 +96,19 @@ class WooDojo_CustomCode {
 
 	/**
 	 * enqueue_custom_css function.
-	 * 
+	 *
 	 * @access public
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function enqueue_custom_css () {
-		wp_register_style( $this->token, home_url( '/?' . $this->token . '=css' ), '', '1.0.0', 'screen' );
+		wp_register_style( $this->token, home_url( '/?' . $this->token . '=css' ), 'style', '1.0.0', 'screen' );
 		wp_enqueue_style( $this->token );
 	} // End enqueue_custom_css()
 
 	/**
 	 * output_custom_css function.
-	 * 
+	 *
 	 * @access public
 	 * @since 1.0.0
 	 * @return void
@@ -116,14 +116,14 @@ class WooDojo_CustomCode {
 	public function output_custom_css () {
 		header( 'Content-Type: text/css' );
 
-		echo $this->settings['custom-css-code'];
+		echo stripslashes( $this->settings['custom-css-code'] );
 
 		die();
 	} // End output_custom_css()
 
 	/**
 	 * output_custom_html function.
-	 * 
+	 *
 	 * @access public
 	 * @since 1.0.0
 	 * @return void
