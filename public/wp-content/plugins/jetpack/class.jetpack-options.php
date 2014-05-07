@@ -11,9 +11,12 @@ class Jetpack_Options {
 				'activated',
 				'active_modules',
 				'do_activate',
+				'log',
 				'publicize',
+				'slideshow_background_color',
 				'widget_twitter',
 				'wpcc_options',
+				'relatedposts',
 			);
 		}
 
@@ -29,8 +32,13 @@ class Jetpack_Options {
 			'fallback_no_verify_ssl_certs', // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
 			'time_diff',                    // (int)    Offset between Jetpack server's clocks and this server's clocks. Jetpack Server Time = time() + (int) Jetpack_Options::get_option( 'time_diff' )
 			'public',                       // (int|bool) If we think this site is public or not (1, 0), false if we haven't yet tried to figure it out.
+			'videopress',                   // (array)  VideoPress options array.
 			'is_network_site',              // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
-			'social_links',                 // (array)    The specified links for each social networking site.
+			'social_links',                 // (array)  The specified links for each social networking site.
+			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
+			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
+			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
+			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
 		);
 	}
 
@@ -63,6 +71,7 @@ class Jetpack_Options {
 	 * @param mixed  $value Option value
 	 */
 	public static function update_option( $name, $value ) {
+		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( in_array( $name, self::get_option_names( 'non_compact' ) ) ) {
 			return update_option( "jetpack_$name", $value );
 		} else if ( !in_array( $name, self::get_option_names() ) ) {

@@ -460,6 +460,9 @@ add_action( 'template_redirect', 'sharing_process_requests', 9 );
 function sharing_display( $text = '', $echo = false ) {
 	global $post, $wp_current_filter;
 
+	if ( empty( $post ) )
+		return $text;
+
 	if ( is_preview() ) {
 		return $text;
 	}
@@ -500,7 +503,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( !is_feed() ) {
 		if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
 			$show = true;
-		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() ) ) {
+		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
 			$show = true;
 		}
 	}

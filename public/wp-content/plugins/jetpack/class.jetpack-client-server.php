@@ -9,9 +9,7 @@
 class Jetpack_Client_Server {
 	function authorize() {
 		$data = stripslashes_deep( $_GET );
-
 		$args = array();
-
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		do {
@@ -87,8 +85,8 @@ class Jetpack_Client_Server {
 				break;
 			}
 
-			if ( $active_modules = Jetpack::get_option( 'active_modules' ) ) {
-				Jetpack::delete_option( 'active_modules' );
+			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+				Jetpack_Options::delete_option( 'active_modules' );
 
 				Jetpack::activate_default_modules( 999, 1, $active_modules );
 			} else {
@@ -136,7 +134,7 @@ class Jetpack_Client_Server {
 	function get_token( $data ) {
 		$jetpack = Jetpack::init();
 		$role = $jetpack->translate_current_user_to_role();
-
+		
 		if ( !$role ) {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
@@ -149,7 +147,7 @@ class Jetpack_Client_Server {
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		$body = array(
-			'client_id' => Jetpack::get_option( 'id' ),
+			'client_id' => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
 			'grant_type' => 'authorization_code',
 			'code' => $data['code'],
@@ -167,7 +165,7 @@ class Jetpack_Client_Server {
 				'Accept' => 'application/json',
 			),
 		);
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ), $args ), $args );
+		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), $args );
 
 		if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'token_http_request_failed', $response->get_error_message() );
