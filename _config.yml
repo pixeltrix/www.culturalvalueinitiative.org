@@ -1,0 +1,7 @@
+title: Cultural Value Initiative
+url: https://www.culturalvalueinitiative.org
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - CNAME
